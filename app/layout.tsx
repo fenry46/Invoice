@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import { Fish, FileText, Plus } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeToggle } from "@/components/theme-toggle";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -28,43 +30,52 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        <header className="no-print sticky top-0 z-10 border-b bg-background/80 backdrop-blur">
-          <nav className="mx-auto flex w-full max-w-3xl items-center justify-between gap-2 px-4 py-3">
-            <Link href="/" className="flex items-center gap-2 font-semibold">
-              <Fish className="size-5" aria-hidden />
-              <span>Fish Invoice</span>
-            </Link>
-            <div className="flex items-center gap-1 text-sm">
-              <Link
-                href="/fish"
-                className="rounded-md px-3 py-2 hover:bg-accent"
-              >
-                Fish
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <header className="no-print sticky top-0 z-10 border-b bg-background/80 backdrop-blur">
+            <nav className="mx-auto flex w-full max-w-3xl items-center justify-between gap-2 px-4 py-3">
+              <Link href="/" className="flex items-center gap-2 font-semibold">
+                <Fish className="size-5" aria-hidden />
+                <span>Fish Invoice</span>
               </Link>
-              <Link
-                href="/invoices"
-                className="rounded-md px-3 py-2 hover:bg-accent"
-              >
-                <span className="hidden sm:inline">Invoices</span>
-                <FileText className="inline size-4 sm:hidden" aria-hidden />
-              </Link>
-              <Link
-                href="/invoices/new"
-                className="ml-1 inline-flex items-center gap-1 rounded-md bg-primary px-3 py-2 font-medium text-primary-foreground hover:bg-primary/90"
-              >
-                <Plus className="size-4" aria-hidden />
-                <span className="hidden sm:inline">New</span>
-              </Link>
-            </div>
-          </nav>
-        </header>
-        <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-6">
-          {children}
-        </main>
-        <Toaster richColors position="top-center" />
+              <div className="flex items-center gap-1 text-sm">
+                <Link
+                  href="/fish"
+                  className="rounded-md px-3 py-2 hover:bg-accent"
+                >
+                  Fish
+                </Link>
+                <Link
+                  href="/invoices"
+                  className="rounded-md px-3 py-2 hover:bg-accent"
+                >
+                  <span className="hidden sm:inline">Invoices</span>
+                  <FileText className="inline size-4 sm:hidden" aria-hidden />
+                </Link>
+                <Link
+                  href="/invoices/new"
+                  className="ml-1 inline-flex items-center gap-1 rounded-md bg-primary px-3 py-2 font-medium text-primary-foreground hover:bg-primary/90"
+                >
+                  <Plus className="size-4" aria-hidden />
+                  <span className="hidden sm:inline">New</span>
+                </Link>
+                <ThemeToggle />
+              </div>
+            </nav>
+          </header>
+          <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-6">
+            {children}
+          </main>
+          <Toaster richColors position="top-center" />
+        </ThemeProvider>
       </body>
     </html>
   );

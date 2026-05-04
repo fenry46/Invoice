@@ -34,6 +34,8 @@ export function InvoiceForm({ fish }: { fish: Fish[] }) {
     mode: "onSubmit",
   });
 
+  const fishItems = Object.fromEntries(fish.map((f) => [f.id, f.name]));
+
   const items = useFieldArray({ control: form.control, name: "items" });
   const deductions = useFieldArray({
     control: form.control,
@@ -106,7 +108,11 @@ export function InvoiceForm({ fish }: { fish: Fish[] }) {
                     control={form.control}
                     name={`items.${idx}.fishId`}
                     render={({ field: f }) => (
-                      <Select value={f.value} onValueChange={f.onChange}>
+                      <Select
+                        value={f.value}
+                        onValueChange={f.onChange}
+                        items={fishItems}
+                      >
                         <SelectTrigger className="h-11 w-full">
                           <SelectValue placeholder="Select fish" />
                         </SelectTrigger>
