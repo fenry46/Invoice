@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Fish {
+  id        String        @id @default(cuid())
+  name      String        @unique
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  items     InvoiceItem[]
+}
+
+model Invoice {
+  id              String        @id @default(cuid())
+  invoiceNumber   String        @unique
+  grossTotal      Float
+  totalDeductions Float
+  grandTotal      Float
+  createdAt       DateTime      @default(now())
+
+  items      InvoiceItem[]
+  deductions Deduction[]
+}
+
+model InvoiceItem {
+  id         String  @id @default(cuid())
+  invoiceId  String
+  invoice    Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  fishId     String
+  fish       Fish    @relation(fields: [fishId], references: [id], onDelete: Restrict)
+  weightKg   Float
+  pricePerKg Float
+  subtotal   Float
+}
+
+model Deduction {
+  id          String  @id @default(cuid())
+  invoiceId   String
+  invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  description String
+  amount      Float
+}
