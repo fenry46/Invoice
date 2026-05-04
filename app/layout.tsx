@@ -54,6 +54,12 @@ export default function RootLayout({
                   Fish
                 </Link>
                 <Link
+                  href="/customers"
+                  className="rounded-md px-3 py-2 hover:bg-accent"
+                >
+                  Customers
+                </Link>
+                <Link
                   href="/invoices"
                   className="rounded-md px-3 py-2 hover:bg-accent"
                 >

@@ -19,6 +19,7 @@ export default async function InvoiceDetailPage({
     include: {
       items: { include: { fish: true } },
       deductions: true,
+      customer: true,
     },
   });
 
@@ -49,6 +50,22 @@ export default async function InvoiceDetailPage({
             {formatDate(invoice.createdAt)}
           </div>
         </header>
+
+        {invoice.customer && (
+          <section>
+            <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+              Bill to
+            </h2>
+            <div className="text-sm">
+              <div className="font-medium">{invoice.customer.name}</div>
+              {invoice.customer.phone && (
+                <div className="text-muted-foreground">
+                  {invoice.customer.phone}
+                </div>
+              )}
+            </div>
+          </section>
+        )}
 
         <section>
           <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">

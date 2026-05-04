@@ -1,0 +1,97 @@
+"use server";
+
+import { Prisma } from "@prisma/client";
+import { revalidatePath } from "next/cache";
+import { prisma } from "@/lib/db";
+import { customerInputSchema, customerNameSchema } from "@/lib/schemas";
+
+export type ActionResult = { ok: true } | { ok: false; error: string };
+
+function revalidateAll() {
+  revalidatePath("/customers");
+  revalidatePath("/invoices/new");
+  revalidatePath("/invoices");
+  revalidatePath("/");
+}
+
+export async function createCustomerAction(
+  _prev: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
+  const parsed = customerInputSchema.safeParse({
+    name: formData.get("name"),
+    phone: formData.get("phone") ?? undefined,
+  });
+  if (!parsed.success) {
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+  try {
+    await prisma.customer.create({ data: parsed.data });
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+      return { ok: false, error: "A customer with that name already exists" };
+    }
+    return { ok: false, error: "Failed to create customer" };
+  }
+  revalidateAll();
+  return { ok: true };
+}
+
+export async function updateCustomerAction(
+  id: string,
+  input: { name: string; phone?: string },
+): Promise<ActionResult> {
+  const parsed = customerInputSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+  try {
+    await prisma.customer.update({
+      where: { id },
+      data: { name: parsed.data.name, phone: parsed.data.phone ?? null },
+    });
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+      return { ok: false, error: "A customer with that name already exists" };
+    }
+    return { ok: false, error: "Failed to update customer" };
+  }
+  revalidateAll();
+  return { ok: true };
+}
+
+export async function renameCustomerAction(
+  id: string,
+  name: string,
+): Promise<ActionResult> {
+  const parsed = customerNameSchema.safeParse(name);
+  if (!parsed.success) {
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid name" };
+  }
+  try {
+    await prisma.customer.update({ where: { id }, data: { name: parsed.data } });
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+      return { ok: false, error: "A customer with that name already exists" };
+    }
+    return { ok: false, error: "Failed to rename customer" };
+  }
+  revalidateAll();
+  return { ok: true };
+}
+
+export async function deleteCustomerAction(id: string): Promise<ActionResult> {
+  try {
+    await prisma.customer.delete({ where: { id } });
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2003") {
+      return {
+        ok: false,
+        error: "Cannot delete: this customer is used by one or more invoices",
+      };
+    }
+    return { ok: false, error: "Failed to delete customer" };
+  }
+  revalidateAll();
+  return { ok: true };
+}

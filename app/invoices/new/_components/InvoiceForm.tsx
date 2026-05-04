@@ -21,13 +21,21 @@ import { formatIDR } from "@/lib/format";
 import { createInvoiceAction } from "@/app/_actions/invoices";
 
 type Fish = { id: string; name: string };
+type Customer = { id: string; name: string };
 
-export function InvoiceForm({ fish }: { fish: Fish[] }) {
+export function InvoiceForm({
+  fish,
+  customers,
+}: {
+  fish: Fish[];
+  customers: Customer[];
+}) {
   const [pending, startTransition] = useTransition();
 
   const form = useForm<InvoiceInput>({
     resolver: zodResolver(invoiceInputSchema),
     defaultValues: {
+      customerId: "",
       items: [{ fishId: fish[0]?.id ?? "", weightKg: 0, pricePerKg: 0 }],
       deductions: [],
     },
@@ -35,6 +43,9 @@ export function InvoiceForm({ fish }: { fish: Fish[] }) {
   });
 
   const fishItems = Object.fromEntries(fish.map((f) => [f.id, f.name]));
+  const customerItems = Object.fromEntries(
+    customers.map((c) => [c.id, c.name]),
+  );
 
   const items = useFieldArray({ control: form.control, name: "items" });
   const deductions = useFieldArray({
@@ -72,6 +83,41 @@ export function InvoiceForm({ fish }: { fish: Fish[] }) {
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+      <Card>
+        <CardHeader>
+          <CardTitle>Customer</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Controller
+            control={form.control}
+            name="customerId"
+            render={({ field: f }) => (
+              <Select
+                value={f.value}
+                onValueChange={f.onChange}
+                items={customerItems}
+              >
+                <SelectTrigger className="h-11 w-full">
+                  <SelectValue placeholder="Select customer" />
+                </SelectTrigger>
+                <SelectContent>
+                  {customers.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
+          {form.formState.errors.customerId && (
+            <p className="mt-1 text-xs text-destructive">
+              {form.formState.errors.customerId.message}
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Items</CardTitle>

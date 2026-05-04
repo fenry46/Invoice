@@ -10,7 +10,10 @@ export default async function InvoicesPage() {
   const invoices = await prisma.invoice.findMany({
     orderBy: { createdAt: "desc" },
     take: 100,
-    include: { _count: { select: { items: true } } },
+    include: {
+      _count: { select: { items: true } },
+      customer: { select: { name: true } },
+    },
   });
 
   return (
@@ -42,6 +45,9 @@ export default async function InvoicesPage() {
               >
                 <div className="min-w-0 flex-1">
                   <div className="font-medium">{inv.invoiceNumber}</div>
+                  {inv.customer && (
+                    <div className="truncate text-sm">{inv.customer.name}</div>
+                  )}
                   <div className="text-xs text-muted-foreground">
                     {formatDate(inv.createdAt)} · {inv._count.items} item
                     {inv._count.items === 1 ? "" : "s"}

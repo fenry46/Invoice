@@ -44,6 +44,7 @@ export async function createInvoiceAction(
             grossTotal,
             totalDeductions,
             grandTotal,
+            customerId: data.customerId,
             items: { create: items },
             deductions: {
               create: data.deductions.map((d) => ({

@@ -6,10 +6,16 @@ import { InvoiceForm } from "./_components/InvoiceForm";
 export const dynamic = "force-dynamic";
 
 export default async function NewInvoicePage() {
-  const fish = await prisma.fish.findMany({
-    orderBy: { name: "asc" },
-    select: { id: true, name: true },
-  });
+  const [fish, customers] = await Promise.all([
+    prisma.fish.findMany({
+      orderBy: { name: "asc" },
+      select: { id: true, name: true },
+    }),
+    prisma.customer.findMany({
+      orderBy: { name: "asc" },
+      select: { id: true, name: true },
+    }),
+  ]);
 
   if (fish.length === 0) {
     return (
@@ -27,6 +33,22 @@ export default async function NewInvoicePage() {
     );
   }
 
+  if (customers.length === 0) {
+    return (
+      <div className="space-y-4">
+        <h1 className="text-2xl font-semibold tracking-tight">New invoice</h1>
+        <div className="rounded-md border border-dashed p-6 text-center">
+          <p className="mb-4 text-sm text-muted-foreground">
+            Add at least one customer before creating an invoice.
+          </p>
+          <Link href="/customers" className={buttonVariants()}>
+            Manage customers
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -35,7 +57,7 @@ export default async function NewInvoicePage() {
           Add items, weights, prices, and any deductions.
         </p>
       </div>
-      <InvoiceForm fish={fish} />
+      <InvoiceForm fish={fish} customers={customers} />
     </div>
   );
 }
