@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState, useTransition } from "react";
-import { Plus, Trash2, Pencil, Check, X } from "lucide-react";
+import { Plus, Trash2, Pencil, Check, X, Users } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -59,11 +59,17 @@ export function CustomerManager({ customers }: { customers: CustomerRow[] }) {
       </Card>
 
       {customers.length === 0 ? (
-        <p className="rounded-md border border-dashed p-6 text-center text-sm text-muted-foreground">
-          No customers yet. Add your first one above.
-        </p>
+        <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed py-10 text-center">
+          <div className="rounded-full bg-primary/10 p-3 text-primary">
+            <Users className="size-5" aria-hidden />
+          </div>
+          <p className="text-sm font-medium">No customers yet</p>
+          <p className="text-xs text-muted-foreground">
+            Add your first one above to bill them on invoices.
+          </p>
+        </div>
       ) : (
-        <ul className="divide-y rounded-md border">
+        <ul className="divide-y rounded-lg border bg-card">
           {customers.map((c) => (
             <CustomerItem key={c.id} customer={c} />
           ))}
@@ -110,7 +116,13 @@ function CustomerItem({ customer }: { customer: CustomerRow }) {
   }
 
   return (
-    <li className="flex items-center gap-2 p-3">
+    <li
+      className={
+        editing
+          ? "flex flex-col gap-2 px-3 py-3 sm:flex-row sm:items-center"
+          : "flex items-center gap-2 px-3 py-3"
+      }
+    >
       {editing ? (
         <>
           <div className="flex flex-1 flex-col gap-2 sm:flex-row">
@@ -136,23 +148,25 @@ function CustomerItem({ customer }: { customer: CustomerRow }) {
               }}
             />
           </div>
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={save}
-            disabled={pending}
-            aria-label="Save"
-          >
-            <Check className="size-4" />
-          </Button>
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={cancel}
-            aria-label="Cancel"
-          >
-            <X className="size-4" />
-          </Button>
+          <div className="flex justify-end gap-1">
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={save}
+              disabled={pending}
+              aria-label="Save"
+            >
+              <Check className="size-4 text-primary" />
+            </Button>
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={cancel}
+              aria-label="Cancel"
+            >
+              <X className="size-4" />
+            </Button>
+          </div>
         </>
       ) : (
         <>

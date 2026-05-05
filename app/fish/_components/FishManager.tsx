@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState, useTransition } from "react";
-import { Plus, Trash2, Pencil, Check, X } from "lucide-react";
+import { Plus, Trash2, Pencil, Check, X, Fish as FishIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,11 +48,17 @@ export function FishManager({ fish }: { fish: FishRow[] }) {
       </Card>
 
       {fish.length === 0 ? (
-        <p className="rounded-md border border-dashed p-6 text-center text-sm text-muted-foreground">
-          No fish yet. Add your first one above.
-        </p>
+        <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed py-10 text-center">
+          <div className="rounded-full bg-primary/10 p-3 text-primary">
+            <FishIcon className="size-5" aria-hidden />
+          </div>
+          <p className="text-sm font-medium">No fish yet</p>
+          <p className="text-xs text-muted-foreground">
+            Add your first one above to start invoicing.
+          </p>
+        </div>
       ) : (
-        <ul className="divide-y rounded-md border">
+        <ul className="divide-y rounded-lg border bg-card">
           {fish.map((f) => (
             <FishItem key={f.id} fish={f} />
           ))}
@@ -89,13 +95,19 @@ function FishItem({ fish }: { fish: FishRow }) {
   }
 
   return (
-    <li className="flex items-center gap-2 p-3">
+    <li
+      className={
+        editing
+          ? "flex flex-col gap-2 px-3 py-3 sm:flex-row sm:items-center"
+          : "flex items-center gap-2 px-3 py-3"
+      }
+    >
       {editing ? (
         <>
           <Input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="h-10"
+            className="h-10 flex-1"
             autoFocus
             onKeyDown={(e) => {
               if (e.key === "Enter") save();
@@ -105,26 +117,28 @@ function FishItem({ fish }: { fish: FishRow }) {
               }
             }}
           />
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={save}
-            disabled={pending}
-            aria-label="Save"
-          >
-            <Check className="size-4" />
-          </Button>
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={() => {
-              setName(fish.name);
-              setEditing(false);
-            }}
-            aria-label="Cancel"
-          >
-            <X className="size-4" />
-          </Button>
+          <div className="flex justify-end gap-1">
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={save}
+              disabled={pending}
+              aria-label="Save"
+            >
+              <Check className="size-4 text-primary" />
+            </Button>
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={() => {
+                setName(fish.name);
+                setEditing(false);
+              }}
+              aria-label="Cancel"
+            >
+              <X className="size-4" />
+            </Button>
+          </div>
         </>
       ) : (
         <>

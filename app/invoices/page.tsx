@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChevronRight, Plus } from "lucide-react";
+import { ChevronRight, FileText, Plus } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { buttonVariants } from "@/components/ui/button";
 import { formatDate, formatIDR } from "@/lib/format";
@@ -18,33 +18,47 @@ export default async function InvoicesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Invoices</h1>
-          <p className="text-sm text-muted-foreground">
-            Most recent first.
-          </p>
+          <p className="text-sm text-muted-foreground">Most recent first.</p>
         </div>
-        <Link href="/invoices/new" className={buttonVariants()}>
+        <Link href="/invoices/new" className={buttonVariants({ className: "shadow-sm" })}>
           <Plus className="size-4" />
-          New
+          <span className="hidden sm:inline">New invoice</span>
+          <span className="sm:hidden">New</span>
         </Link>
       </div>
 
       {invoices.length === 0 ? (
-        <div className="rounded-md border border-dashed p-6 text-center text-sm text-muted-foreground">
-          No invoices yet.
+        <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed py-12 text-center">
+          <div className="rounded-full bg-primary/10 p-3 text-primary">
+            <FileText className="size-5" aria-hidden />
+          </div>
+          <p className="text-sm font-medium">No invoices yet</p>
+          <p className="text-xs text-muted-foreground">
+            Create your first one to get started.
+          </p>
+          <Link
+            href="/invoices/new"
+            className={buttonVariants({ size: "sm", className: "mt-2" })}
+          >
+            <Plus className="size-4" />
+            New invoice
+          </Link>
         </div>
       ) : (
-        <ul className="divide-y rounded-md border">
+        <ul className="divide-y rounded-lg border bg-card">
           {invoices.map((inv) => (
             <li key={inv.id}>
               <Link
                 href={`/invoices/${inv.id}`}
-                className="flex items-center gap-3 p-4 hover:bg-accent"
+                className="flex items-center gap-3 px-3 py-3 transition-colors hover:bg-accent sm:px-4"
               >
                 <div className="min-w-0 flex-1">
-                  <div className="font-medium">{inv.invoiceNumber}</div>
+                  <div className="font-mono text-sm font-medium">
+                    {inv.invoiceNumber}
+                  </div>
                   {inv.customer && (
                     <div className="truncate text-sm">{inv.customer.name}</div>
                   )}

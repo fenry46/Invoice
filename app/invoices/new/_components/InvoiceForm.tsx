@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useForm, useFieldArray, useWatch, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Trash2 } from "lucide-react";
@@ -36,7 +36,13 @@ export function InvoiceForm({
     resolver: zodResolver(invoiceInputSchema),
     defaultValues: {
       customerId: "",
-      items: [{ fishId: fish[0]?.id ?? "", weightKg: 0, pricePerKg: 0 }],
+      items: [
+        {
+          fishId: fish[0]?.id ?? "",
+          weightKg: "" as unknown as number,
+          pricePerKg: "" as unknown as number,
+        },
+      ],
       deductions: [],
     },
     mode: "onSubmit",
@@ -82,7 +88,7 @@ export function InvoiceForm({
   const itemErrors = form.formState.errors.items;
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 pb-28 sm:pb-0">
       <Card>
         <CardHeader>
           <CardTitle>Customer</CardTitle>
@@ -128,8 +134,8 @@ export function InvoiceForm({
             onClick={() =>
               items.append({
                 fishId: fish[0]?.id ?? "",
-                weightKg: 0,
-                pricePerKg: 0,
+                weightKg: "" as unknown as number,
+                pricePerKg: "" as unknown as number,
               })
             }
           >
@@ -181,14 +187,18 @@ export function InvoiceForm({
 
                 <div className="sm:col-span-3">
                   <Label className="text-xs">Weight (kg)</Label>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    inputMode="decimal"
-                    className="h-11"
-                    {...form.register(`items.${idx}.weightKg`, {
-                      valueAsNumber: true,
-                    })}
+                  <Controller
+                    control={form.control}
+                    name={`items.${idx}.weightKg`}
+                    render={({ field: f }) => (
+                      <FormattedNumberInput
+                        value={f.value as number | undefined}
+                        onChange={f.onChange}
+                        onBlur={f.onBlur}
+                        decimal
+                        placeholder="0,00"
+                      />
+                    )}
                   />
                   {err?.weightKg && (
                     <p className="mt-1 text-xs text-destructive">
@@ -199,14 +209,17 @@ export function InvoiceForm({
 
                 <div className="sm:col-span-3">
                   <Label className="text-xs">Price / kg (IDR)</Label>
-                  <Input
-                    type="number"
-                    step="1"
-                    inputMode="decimal"
-                    className="h-11"
-                    {...form.register(`items.${idx}.pricePerKg`, {
-                      valueAsNumber: true,
-                    })}
+                  <Controller
+                    control={form.control}
+                    name={`items.${idx}.pricePerKg`}
+                    render={({ field: f }) => (
+                      <FormattedNumberInput
+                        value={f.value as number | undefined}
+                        onChange={f.onChange}
+                        onBlur={f.onBlur}
+                        placeholder="0"
+                      />
+                    )}
                   />
                   {err?.pricePerKg && (
                     <p className="mt-1 text-xs text-destructive">
@@ -248,7 +261,10 @@ export function InvoiceForm({
             variant="outline"
             size="sm"
             onClick={() =>
-              deductions.append({ description: "", amount: 0 })
+              deductions.append({
+                description: "",
+                amount: "" as unknown as number,
+              })
             }
           >
             <Plus className="size-4" />
@@ -283,14 +299,17 @@ export function InvoiceForm({
                   </div>
                   <div className="sm:col-span-4">
                     <Label className="text-xs">Amount (IDR)</Label>
-                    <Input
-                      type="number"
-                      step="1"
-                      inputMode="decimal"
-                      className="h-11"
-                      {...form.register(`deductions.${idx}.amount`, {
-                        valueAsNumber: true,
-                      })}
+                    <Controller
+                      control={form.control}
+                      name={`deductions.${idx}.amount`}
+                      render={({ field: f }) => (
+                        <FormattedNumberInput
+                          value={f.value as number | undefined}
+                          onChange={f.onChange}
+                          onBlur={f.onBlur}
+                          placeholder="0"
+                        />
+                      )}
                     />
                     {err?.amount && (
                       <p className="mt-1 text-xs text-destructive">
@@ -316,7 +335,7 @@ export function InvoiceForm({
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="hidden sm:block">
         <CardContent className="space-y-2 pt-6 text-sm">
           <Row label="Gross total" value={formatIDR(grossTotal)} />
           <Row
@@ -333,14 +352,34 @@ export function InvoiceForm({
         </CardContent>
       </Card>
 
-      <div className="flex justify-end gap-2">
+      <div className="hidden justify-end gap-2 sm:flex">
         <Button
           type="submit"
           disabled={pending}
-          className="h-11 min-w-32"
+          className="h-11 min-w-32 shadow-sm"
         >
           {pending ? "Saving..." : "Create invoice"}
         </Button>
+      </div>
+
+      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-border/70 bg-background/90 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/75 sm:hidden">
+        <div className="mx-auto flex w-full max-w-3xl items-center gap-3">
+          <div className="min-w-0 flex-1">
+            <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
+              Grand total
+            </div>
+            <div className="truncate text-lg font-semibold tabular-nums">
+              {formatIDR(grandTotal)}
+            </div>
+          </div>
+          <Button
+            type="submit"
+            disabled={pending}
+            className="h-11 min-w-28 shadow-sm"
+          >
+            {pending ? "Saving..." : "Create"}
+          </Button>
+        </div>
       </div>
     </form>
   );
@@ -362,5 +401,106 @@ function Row({
       <span className={bold ? "" : "text-muted-foreground"}>{label}</span>
       <span className="tabular-nums">{value}</span>
     </div>
+  );
+}
+
+const idIntFormatter = new Intl.NumberFormat("id-ID", {
+  maximumFractionDigits: 0,
+});
+const idDecimalFormatter = new Intl.NumberFormat("id-ID", {
+  maximumFractionDigits: 3,
+});
+
+function formatForDisplay(
+  n: number | undefined,
+  decimal: boolean,
+  trailing: string,
+): string {
+  if (n === undefined || n === null || Number.isNaN(n)) return "";
+  const fmt = decimal ? idDecimalFormatter : idIntFormatter;
+  return fmt.format(n) + trailing;
+}
+
+function FormattedNumberInput({
+  value,
+  onChange,
+  onBlur,
+  decimal = false,
+  placeholder,
+}: {
+  value: number | undefined;
+  onChange: (v: number | undefined) => void;
+  onBlur?: () => void;
+  decimal?: boolean;
+  placeholder?: string;
+}) {
+  // Track a trailing decimal separator (or trailing zeros after it)
+  // so the user can type "12," and see it before adding fractional digits.
+  const [trailing, setTrailing] = useState("");
+
+  function handleChange(raw: string) {
+    if (decimal) {
+      // Keep digits, dots, and commas. Treat dot as thousand separator (drop)
+      // and comma as decimal separator.
+      const cleaned = raw.replace(/[^\d.,]/g, "");
+      const noDots = cleaned.replace(/\./g, "");
+      const firstComma = noDots.indexOf(",");
+      let intPart = noDots;
+      let fracPart = "";
+      if (firstComma !== -1) {
+        intPart = noDots.slice(0, firstComma);
+        fracPart = noDots.slice(firstComma + 1).replace(/,/g, "");
+      }
+      if (intPart === "" && fracPart === "" && firstComma === -1) {
+        setTrailing("");
+        onChange(undefined);
+        return;
+      }
+      const normalized = fracPart
+        ? `${intPart || "0"}.${fracPart}`
+        : intPart || "0";
+      const n = Number(normalized);
+      if (!Number.isFinite(n)) return;
+      // Preserve trailing comma / trailing zeros so display matches typing.
+      let suffix = "";
+      if (firstComma !== -1) {
+        const trailingZeros = fracPart.match(/0+$/)?.[0] ?? "";
+        if (fracPart === "") suffix = ",";
+        else if (trailingZeros && /[1-9]/.test(fracPart) === false)
+          suffix = `,${fracPart}`;
+        else if (trailingZeros) suffix = trailingZeros;
+      }
+      setTrailing(suffix);
+      onChange(n);
+    } else {
+      const digits = raw.replace(/\D/g, "");
+      if (digits === "") {
+        onChange(undefined);
+        return;
+      }
+      onChange(Number(digits));
+    }
+  }
+
+  function handleBlur() {
+    setTrailing("");
+    onBlur?.();
+  }
+
+  const display = decimal
+    ? formatForDisplay(value, true, trailing)
+    : formatForDisplay(value, false, "");
+
+  return (
+    <Input
+      type="text"
+      inputMode="decimal"
+      className="h-11 tabular-nums"
+      placeholder={placeholder}
+      value={display}
+      onChange={(e) => handleChange(e.target.value)}
+      onBlur={handleBlur}
+      autoComplete="off"
+    />
   );
 }

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
-import { Fish, FileText, Plus } from "lucide-react";
+import { Fish, FileText, Plus, Users } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -40,35 +40,44 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <header className="no-print sticky top-0 z-10 border-b bg-background/80 backdrop-blur">
-            <nav className="mx-auto flex w-full max-w-3xl items-center justify-between gap-2 px-4 py-3">
-              <Link href="/" className="flex items-center gap-2 font-semibold">
-                <Fish className="size-5" aria-hidden />
-                <span>Fish Invoice</span>
+          <header className="no-print sticky top-0 z-10 border-b border-border/60 bg-background/75 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <nav className="mx-auto flex w-full max-w-3xl items-center justify-between gap-1.5 px-4 py-2.5">
+              <Link
+                href="/"
+                className="flex items-center gap-2 font-semibold tracking-tight"
+              >
+                <Fish className="size-5 text-primary" aria-hidden />
+                <span className="hidden sm:inline">Fish Invoice</span>
+                <span className="sm:hidden">Fish</span>
               </Link>
-              <div className="flex items-center gap-1 text-sm">
+              <div className="flex items-center gap-0.5 text-sm">
                 <Link
                   href="/fish"
-                  className="rounded-md px-3 py-2 hover:bg-accent"
+                  className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground sm:px-3"
+                  aria-label="Fish"
                 >
-                  Fish
+                  <Fish className="size-4 sm:hidden" aria-hidden />
+                  <span className="hidden sm:inline">Fish</span>
                 </Link>
                 <Link
                   href="/customers"
-                  className="rounded-md px-3 py-2 hover:bg-accent"
+                  className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground sm:px-3"
+                  aria-label="Customers"
                 >
-                  Customers
+                  <Users className="size-4 sm:hidden" aria-hidden />
+                  <span className="hidden sm:inline">Customers</span>
                 </Link>
                 <Link
                   href="/invoices"
-                  className="rounded-md px-3 py-2 hover:bg-accent"
+                  className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground sm:px-3"
+                  aria-label="Invoices"
                 >
+                  <FileText className="size-4 sm:hidden" aria-hidden />
                   <span className="hidden sm:inline">Invoices</span>
-                  <FileText className="inline size-4 sm:hidden" aria-hidden />
                 </Link>
                 <Link
                   href="/invoices/new"
-                  className="ml-1 inline-flex items-center gap-1 rounded-md bg-primary px-3 py-2 font-medium text-primary-foreground hover:bg-primary/90"
+                  className="ml-1 inline-flex items-center gap-1.5 rounded-md bg-primary px-2.5 py-2 font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 sm:px-3"
                 >
                   <Plus className="size-4" aria-hidden />
                   <span className="hidden sm:inline">New</span>

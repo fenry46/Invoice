@@ -38,11 +38,11 @@ export default async function InvoiceDetailPage({
         <PrintButton />
       </div>
 
-      <article className="print-area space-y-6 rounded-lg border bg-card p-6 shadow-sm">
-        <header className="flex flex-wrap items-start justify-between gap-2">
+      <article className="print-area space-y-6 rounded-xl border bg-card p-5 shadow-sm sm:p-6">
+        <header className="flex flex-wrap items-start justify-between gap-2 border-b pb-4">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">Invoice</h1>
-            <p className="font-mono text-sm text-muted-foreground">
+            <p className="font-mono text-sm font-medium text-muted-foreground">
               {invoice.invoiceNumber}
             </p>
           </div>
