@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db";
 import { buttonVariants } from "@/components/ui/button";
 import { formatDate, formatIDR, formatNumber } from "@/lib/format";
 import { PrintButton } from "./_components/PrintButton";
+import { DeleteInvoiceButton } from "./_components/DeleteInvoiceButton";
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +28,7 @@ export default async function InvoiceDetailPage({
 
   return (
     <div className="space-y-4">
-      <div className="no-print flex items-center justify-between">
+      <div className="no-print flex items-center justify-between gap-2">
         <Link
           href="/invoices"
           className={buttonVariants({ variant: "ghost", size: "sm" })}
@@ -35,7 +36,13 @@ export default async function InvoiceDetailPage({
           <ArrowLeft className="size-4" />
           Back
         </Link>
-        <PrintButton />
+        <div className="flex items-center gap-2">
+          <DeleteInvoiceButton
+            id={invoice.id}
+            invoiceNumber={invoice.invoiceNumber}
+          />
+          <PrintButton />
+        </div>
       </div>
 
       <article className="print-area space-y-6 rounded-xl border bg-card p-5 shadow-sm sm:p-6">

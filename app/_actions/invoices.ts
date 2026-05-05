@@ -76,3 +76,27 @@ export async function createInvoiceAction(
   revalidatePath("/");
   redirect(`/invoices/${id}`);
 }
+
+export type DeleteInvoiceResult =
+  | { ok: true }
+  | { ok: false; error: string };
+
+export async function deleteInvoiceAction(
+  id: string,
+): Promise<DeleteInvoiceResult> {
+  if (!id) return { ok: false, error: "Missing invoice id" };
+  try {
+    await prisma.invoice.delete({ where: { id } });
+  } catch (e) {
+    if (
+      e instanceof Prisma.PrismaClientKnownRequestError &&
+      e.code === "P2025"
+    ) {
+      return { ok: false, error: "Invoice not found" };
+    }
+    return { ok: false, error: "Failed to delete invoice" };
+  }
+  revalidatePath("/invoices");
+  revalidatePath("/");
+  return { ok: true };
+}
