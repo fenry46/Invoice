@@ -23,15 +23,15 @@ export async function createCustomerAction(
     phone: formData.get("phone") ?? undefined,
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Masukan tidak valid" };
   }
   try {
     await prisma.customer.create({ data: parsed.data });
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
-      return { ok: false, error: "A customer with that name already exists" };
+      return { ok: false, error: "Pelanggan dengan nama itu sudah ada" };
     }
-    return { ok: false, error: "Failed to create customer" };
+    return { ok: false, error: "Gagal menambahkan pelanggan" };
   }
   revalidateAll();
   return { ok: true };
@@ -43,7 +43,7 @@ export async function updateCustomerAction(
 ): Promise<ActionResult> {
   const parsed = customerInputSchema.safeParse(input);
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Masukan tidak valid" };
   }
   try {
     await prisma.customer.update({
@@ -52,9 +52,9 @@ export async function updateCustomerAction(
     });
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
-      return { ok: false, error: "A customer with that name already exists" };
+      return { ok: false, error: "Pelanggan dengan nama itu sudah ada" };
     }
-    return { ok: false, error: "Failed to update customer" };
+    return { ok: false, error: "Gagal memperbarui pelanggan" };
   }
   revalidateAll();
   return { ok: true };
@@ -66,15 +66,15 @@ export async function renameCustomerAction(
 ): Promise<ActionResult> {
   const parsed = customerNameSchema.safeParse(name);
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid name" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Nama tidak valid" };
   }
   try {
     await prisma.customer.update({ where: { id }, data: { name: parsed.data } });
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
-      return { ok: false, error: "A customer with that name already exists" };
+      return { ok: false, error: "Pelanggan dengan nama itu sudah ada" };
     }
-    return { ok: false, error: "Failed to rename customer" };
+    return { ok: false, error: "Gagal mengubah nama pelanggan" };
   }
   revalidateAll();
   return { ok: true };
@@ -87,10 +87,10 @@ export async function deleteCustomerAction(id: string): Promise<ActionResult> {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2003") {
       return {
         ok: false,
-        error: "Cannot delete: this customer is used by one or more invoices",
+        error: "Tidak bisa dihapus: pelanggan ini dipakai di satu atau lebih faktur",
       };
     }
-    return { ok: false, error: "Failed to delete customer" };
+    return { ok: false, error: "Gagal menghapus pelanggan" };
   }
   revalidateAll();
   return { ok: true };

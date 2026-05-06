@@ -32,17 +32,16 @@ export default async function Home() {
     <div className="space-y-6">
       <Card className="overflow-hidden border-primary/15 bg-gradient-to-br from-primary/8 via-primary/3 to-transparent">
         <CardContent className="space-y-1 pt-6">
-          <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Beranda</h1>
           <p className="text-sm text-muted-foreground">
-            {invoiceCount} invoice{invoiceCount === 1 ? "" : "s"} · {fishCount}{" "}
-            fish on the master list
+            {invoiceCount} faktur · {fishCount} ikan di daftar utama
           </p>
           <div className="mt-3 flex items-baseline gap-2">
             <span className="text-2xl font-semibold tabular-nums tracking-tight">
               {formatIDR(monthTotal)}
             </span>
             <span className="text-xs text-muted-foreground">
-              this month · {monthCount} invoice{monthCount === 1 ? "" : "s"}
+              bulan ini · {monthCount} faktur
             </span>
           </div>
         </CardContent>
@@ -54,7 +53,7 @@ export default async function Home() {
           className={buttonVariants({ size: "lg", className: "h-14 justify-start shadow-sm" })}
         >
           <Plus className="size-5" />
-          <span className="flex-1 text-left">New invoice</span>
+          <span className="flex-1 text-left">Faktur baru</span>
         </Link>
         <Link
           href="/fish"
@@ -65,7 +64,7 @@ export default async function Home() {
           })}
         >
           <FishIcon className="size-5" />
-          <span className="flex-1 text-left">Manage fish</span>
+          <span className="flex-1 text-left">Kelola ikan</span>
         </Link>
         <Link
           href="/invoices"
@@ -76,30 +75,30 @@ export default async function Home() {
           })}
         >
           <FileText className="size-5" />
-          <span className="flex-1 text-left">All invoices</span>
+          <span className="flex-1 text-left">Semua faktur</span>
         </Link>
       </div>
 
       <Card>
         <CardContent className="pt-6">
           <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Recent invoices
+            Faktur terbaru
           </h2>
           {recent.length === 0 ? (
             <div className="flex flex-col items-center gap-2 py-8 text-center">
               <div className="rounded-full bg-primary/10 p-3 text-primary">
                 <FileText className="size-5" aria-hidden />
               </div>
-              <p className="text-sm font-medium">No invoices yet</p>
+              <p className="text-sm font-medium">Belum ada faktur</p>
               <p className="text-xs text-muted-foreground">
-                Create your first one to get started.
+                Buat yang pertama untuk memulai.
               </p>
               <Link
                 href="/invoices/new"
                 className={buttonVariants({ size: "sm", className: "mt-2" })}
               >
                 <Plus className="size-4" />
-                New invoice
+                Faktur baru
               </Link>
             </div>
           ) : (

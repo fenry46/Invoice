@@ -20,13 +20,13 @@ export default async function NewInvoicePage() {
   if (fish.length === 0) {
     return (
       <div className="space-y-4">
-        <h1 className="text-2xl font-semibold tracking-tight">New invoice</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Faktur baru</h1>
         <div className="rounded-md border border-dashed p-6 text-center">
           <p className="mb-4 text-sm text-muted-foreground">
-            Add at least one fish before creating an invoice.
+            Tambahkan minimal satu ikan sebelum membuat faktur.
           </p>
           <Link href="/fish" className={buttonVariants()}>
-            Manage fish
+            Kelola ikan
           </Link>
         </div>
       </div>
@@ -36,13 +36,13 @@ export default async function NewInvoicePage() {
   if (customers.length === 0) {
     return (
       <div className="space-y-4">
-        <h1 className="text-2xl font-semibold tracking-tight">New invoice</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Faktur baru</h1>
         <div className="rounded-md border border-dashed p-6 text-center">
           <p className="mb-4 text-sm text-muted-foreground">
-            Add at least one customer before creating an invoice.
+            Tambahkan minimal satu pelanggan sebelum membuat faktur.
           </p>
           <Link href="/customers" className={buttonVariants()}>
-            Manage customers
+            Kelola pelanggan
           </Link>
         </div>
       </div>
@@ -52,9 +52,9 @@ export default async function NewInvoicePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">New invoice</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Faktur baru</h1>
         <p className="text-sm text-muted-foreground">
-          Add items, weights, prices, and any deductions.
+          Tambahkan barang, berat, harga, dan potongan jika ada.
         </p>
       </div>
       <InvoiceForm fish={fish} customers={customers} />

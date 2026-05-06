@@ -11,9 +11,9 @@ export default async function FishPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Fish</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Ikan</h1>
         <p className="text-sm text-muted-foreground">
-          Manage your master list of fish.
+          Kelola daftar utama ikan Anda.
         </p>
       </div>
       <FishManager

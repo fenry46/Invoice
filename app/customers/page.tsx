@@ -11,9 +11,9 @@ export default async function CustomersPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Customers</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Pelanggan</h1>
         <p className="text-sm text-muted-foreground">
-          Manage your customer list.
+          Kelola daftar pelanggan Anda.
         </p>
       </div>
       <CustomerManager

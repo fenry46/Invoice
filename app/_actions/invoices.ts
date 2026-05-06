@@ -18,7 +18,7 @@ export async function createInvoiceAction(
   if (!parsed.success) {
     return {
       ok: false,
-      error: parsed.error.issues[0]?.message ?? "Invalid input",
+      error: parsed.error.issues[0]?.message ?? "Masukan tidak valid",
     };
   }
   const data = parsed.data;
@@ -66,7 +66,7 @@ export async function createInvoiceAction(
       ) {
         continue;
       }
-      return { ok: false, error: "Failed to create invoice" };
+      return { ok: false, error: "Gagal membuat faktur" };
     }
   }
 
@@ -84,7 +84,7 @@ export type DeleteInvoiceResult =
 export async function deleteInvoiceAction(
   id: string,
 ): Promise<DeleteInvoiceResult> {
-  if (!id) return { ok: false, error: "Missing invoice id" };
+  if (!id) return { ok: false, error: "ID faktur tidak ada" };
   try {
     await prisma.invoice.delete({ where: { id } });
   } catch (e) {
@@ -92,9 +92,9 @@ export async function deleteInvoiceAction(
       e instanceof Prisma.PrismaClientKnownRequestError &&
       e.code === "P2025"
     ) {
-      return { ok: false, error: "Invoice not found" };
+      return { ok: false, error: "Faktur tidak ditemukan" };
     }
-    return { ok: false, error: "Failed to delete invoice" };
+    return { ok: false, error: "Gagal menghapus faktur" };
   }
   revalidatePath("/invoices");
   revalidatePath("/");

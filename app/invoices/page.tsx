@@ -20,13 +20,13 @@ export default async function InvoicesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Invoices</h1>
-          <p className="text-sm text-muted-foreground">Most recent first.</p>
+          <h1 className="text-2xl font-semibold tracking-tight">Faktur</h1>
+          <p className="text-sm text-muted-foreground">Terbaru di atas.</p>
         </div>
         <Link href="/invoices/new" className={buttonVariants({ className: "shadow-sm" })}>
           <Plus className="size-4" />
-          <span className="hidden sm:inline">New invoice</span>
-          <span className="sm:hidden">New</span>
+          <span className="hidden sm:inline">Faktur baru</span>
+          <span className="sm:hidden">Baru</span>
         </Link>
       </div>
 
@@ -35,16 +35,16 @@ export default async function InvoicesPage() {
           <div className="rounded-full bg-primary/10 p-3 text-primary">
             <FileText className="size-5" aria-hidden />
           </div>
-          <p className="text-sm font-medium">No invoices yet</p>
+          <p className="text-sm font-medium">Belum ada faktur</p>
           <p className="text-xs text-muted-foreground">
-            Create your first one to get started.
+            Buat yang pertama untuk memulai.
           </p>
           <Link
             href="/invoices/new"
             className={buttonVariants({ size: "sm", className: "mt-2" })}
           >
             <Plus className="size-4" />
-            New invoice
+            Faktur baru
           </Link>
         </div>
       ) : (
@@ -63,8 +63,7 @@ export default async function InvoicesPage() {
                     <div className="truncate text-sm">{inv.customer.name}</div>
                   )}
                   <div className="text-xs text-muted-foreground">
-                    {formatDate(inv.createdAt)} · {inv._count.items} item
-                    {inv._count.items === 1 ? "" : "s"}
+                    {formatDate(inv.createdAt)} · {inv._count.items} barang
                   </div>
                 </div>
                 <div className="text-right tabular-nums font-medium">

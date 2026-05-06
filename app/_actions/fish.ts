@@ -13,15 +13,15 @@ export async function createFishAction(
 ): Promise<ActionResult> {
   const parsed = fishNameSchema.safeParse(formData.get("name"));
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid name" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Nama tidak valid" };
   }
   try {
     await prisma.fish.create({ data: { name: parsed.data } });
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
-      return { ok: false, error: "A fish with that name already exists" };
+      return { ok: false, error: "Ikan dengan nama itu sudah ada" };
     }
-    return { ok: false, error: "Failed to create fish" };
+    return { ok: false, error: "Gagal menambahkan ikan" };
   }
   revalidatePath("/fish");
   revalidatePath("/invoices/new");
@@ -34,15 +34,15 @@ export async function renameFishAction(
 ): Promise<ActionResult> {
   const parsed = fishNameSchema.safeParse(name);
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid name" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Nama tidak valid" };
   }
   try {
     await prisma.fish.update({ where: { id }, data: { name: parsed.data } });
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
-      return { ok: false, error: "A fish with that name already exists" };
+      return { ok: false, error: "Ikan dengan nama itu sudah ada" };
     }
-    return { ok: false, error: "Failed to rename fish" };
+    return { ok: false, error: "Gagal mengubah nama ikan" };
   }
   revalidatePath("/fish");
   revalidatePath("/invoices/new");
@@ -56,10 +56,10 @@ export async function deleteFishAction(id: string): Promise<ActionResult> {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2003") {
       return {
         ok: false,
-        error: "Cannot delete: this fish is used by one or more invoices",
+        error: "Tidak bisa dihapus: ikan ini dipakai di satu atau lebih faktur",
       };
     }
-    return { ok: false, error: "Failed to delete fish" };
+    return { ok: false, error: "Gagal menghapus ikan" };
   }
   revalidatePath("/fish");
   revalidatePath("/invoices/new");

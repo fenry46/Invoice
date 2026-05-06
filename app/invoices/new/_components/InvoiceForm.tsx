@@ -91,7 +91,7 @@ export function InvoiceForm({
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 pb-28 sm:pb-0">
       <Card>
         <CardHeader>
-          <CardTitle>Customer</CardTitle>
+          <CardTitle>Pelanggan</CardTitle>
         </CardHeader>
         <CardContent>
           <Controller
@@ -104,7 +104,7 @@ export function InvoiceForm({
                 items={customerItems}
               >
                 <SelectTrigger className="h-11 w-full">
-                  <SelectValue placeholder="Select customer" />
+                  <SelectValue placeholder="Pilih pelanggan" />
                 </SelectTrigger>
                 <SelectContent>
                   {customers.map((c) => (
@@ -126,7 +126,7 @@ export function InvoiceForm({
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Items</CardTitle>
+          <CardTitle>Barang</CardTitle>
           <Button
             type="button"
             variant="outline"
@@ -140,7 +140,7 @@ export function InvoiceForm({
             }
           >
             <Plus className="size-4" />
-            Add item
+            Tambah barang
           </Button>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -155,7 +155,7 @@ export function InvoiceForm({
                 className="grid grid-cols-2 gap-3 rounded-md border p-3 sm:grid-cols-12"
               >
                 <div className="col-span-2 sm:col-span-5">
-                  <Label className="text-xs">Fish</Label>
+                  <Label className="text-xs">Ikan</Label>
                   <Controller
                     control={form.control}
                     name={`items.${idx}.fishId`}
@@ -166,7 +166,7 @@ export function InvoiceForm({
                         items={fishItems}
                       >
                         <SelectTrigger className="h-11 w-full">
-                          <SelectValue placeholder="Select fish" />
+                          <SelectValue placeholder="Pilih ikan" />
                         </SelectTrigger>
                         <SelectContent>
                           {fish.map((fi) => (
@@ -186,7 +186,7 @@ export function InvoiceForm({
                 </div>
 
                 <div className="sm:col-span-3">
-                  <Label className="text-xs">Weight (kg)</Label>
+                  <Label className="text-xs">Berat (kg)</Label>
                   <Controller
                     control={form.control}
                     name={`items.${idx}.weightKg`}
@@ -208,7 +208,7 @@ export function InvoiceForm({
                 </div>
 
                 <div className="sm:col-span-3">
-                  <Label className="text-xs">Price / kg (IDR)</Label>
+                  <Label className="text-xs">Harga / kg (IDR)</Label>
                   <Controller
                     control={form.control}
                     name={`items.${idx}.pricePerKg`}
@@ -239,7 +239,7 @@ export function InvoiceForm({
                     size="icon"
                     onClick={() => items.remove(idx)}
                     disabled={items.fields.length <= 1}
-                    aria-label="Remove item"
+                    aria-label="Hapus barang"
                   >
                     <Trash2 className="size-4" />
                   </Button>
@@ -255,7 +255,7 @@ export function InvoiceForm({
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Deductions</CardTitle>
+          <CardTitle>Potongan</CardTitle>
           <Button
             type="button"
             variant="outline"
@@ -268,13 +268,13 @@ export function InvoiceForm({
             }
           >
             <Plus className="size-4" />
-            Add deduction
+            Tambah potongan
           </Button>
         </CardHeader>
         <CardContent className="space-y-3">
           {deductions.fields.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No deductions. Add shipping, ice box, etc. above.
+              Belum ada potongan. Tambahkan ongkir, es, dll. di atas.
             </p>
           ) : (
             deductions.fields.map((field, idx) => {
@@ -285,10 +285,10 @@ export function InvoiceForm({
                   className="grid grid-cols-2 gap-3 rounded-md border p-3 sm:grid-cols-12"
                 >
                   <div className="col-span-2 sm:col-span-7">
-                    <Label className="text-xs">Description</Label>
+                    <Label className="text-xs">Keterangan</Label>
                     <Input
                       className="h-11"
-                      placeholder="e.g. Shipping"
+                      placeholder="mis. Ongkir"
                       {...form.register(`deductions.${idx}.description`)}
                     />
                     {err?.description && (
@@ -298,7 +298,7 @@ export function InvoiceForm({
                     )}
                   </div>
                   <div className="sm:col-span-4">
-                    <Label className="text-xs">Amount (IDR)</Label>
+                    <Label className="text-xs">Jumlah (IDR)</Label>
                     <Controller
                       control={form.control}
                       name={`deductions.${idx}.amount`}
@@ -323,7 +323,7 @@ export function InvoiceForm({
                       variant="ghost"
                       size="icon"
                       onClick={() => deductions.remove(idx)}
-                      aria-label="Remove deduction"
+                      aria-label="Hapus potongan"
                     >
                       <Trash2 className="size-4" />
                     </Button>
@@ -337,14 +337,14 @@ export function InvoiceForm({
 
       <Card className="hidden sm:block">
         <CardContent className="space-y-2 pt-6 text-sm">
-          <Row label="Gross total" value={formatIDR(grossTotal)} />
+          <Row label="Total kotor" value={formatIDR(grossTotal)} />
           <Row
-            label="Deductions"
+            label="Potongan"
             value={`- ${formatIDR(totalDeductions)}`}
           />
           <div className="border-t pt-2">
             <Row
-              label="Grand total"
+              label="Total akhir"
               value={formatIDR(grandTotal)}
               bold
             />
@@ -358,7 +358,7 @@ export function InvoiceForm({
           disabled={pending}
           className="h-11 min-w-32 shadow-sm"
         >
-          {pending ? "Saving..." : "Create invoice"}
+          {pending ? "Menyimpan..." : "Buat faktur"}
         </Button>
       </div>
 
@@ -366,7 +366,7 @@ export function InvoiceForm({
         <div className="mx-auto flex w-full max-w-3xl items-center gap-3">
           <div className="min-w-0 flex-1">
             <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
-              Grand total
+              Total akhir
             </div>
             <div className="truncate text-lg font-semibold tabular-nums">
               {formatIDR(grandTotal)}
@@ -377,7 +377,7 @@ export function InvoiceForm({
             disabled={pending}
             className="h-11 min-w-28 shadow-sm"
           >
-            {pending ? "Saving..." : "Create"}
+            {pending ? "Menyimpan..." : "Buat"}
           </Button>
         </div>
       </div>

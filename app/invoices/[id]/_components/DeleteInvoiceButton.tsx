@@ -18,20 +18,20 @@ export function DeleteInvoiceButton({
   const [pending, startTransition] = useTransition();
 
   function onClick() {
-    toast(`Delete invoice ${invoiceNumber}?`, {
-      description: "This cannot be undone.",
+    toast(`Hapus faktur ${invoiceNumber}?`, {
+      description: "Tindakan ini tidak dapat dibatalkan.",
       duration: 8000,
       classNames: {
         actionButton:
           "!bg-destructive !text-white hover:!bg-destructive/90",
       },
       action: {
-        label: "Delete",
+        label: "Hapus",
         onClick: () => {
           startTransition(async () => {
             const res = await deleteInvoiceAction(id);
             if (res.ok) {
-              toast.success("Invoice deleted");
+              toast.success("Faktur dihapus");
               router.push("/invoices");
             } else {
               toast.error(res.error);
@@ -39,7 +39,7 @@ export function DeleteInvoiceButton({
           });
         },
       },
-      cancel: { label: "Cancel", onClick: () => {} },
+      cancel: { label: "Batal", onClick: () => {} },
     });
   }
 
@@ -52,7 +52,7 @@ export function DeleteInvoiceButton({
       className="text-destructive hover:bg-destructive/10 hover:text-destructive"
     >
       <Trash2 className="size-4" />
-      <span className="hidden sm:inline">Delete</span>
+      <span className="hidden sm:inline">Hapus</span>
     </Button>
   );
 }

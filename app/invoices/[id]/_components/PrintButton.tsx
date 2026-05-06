@@ -7,7 +7,7 @@ export function PrintButton() {
   return (
     <Button size="sm" onClick={() => window.print()}>
       <Printer className="size-4" />
-      Print
+      Cetak
     </Button>
   );
 }

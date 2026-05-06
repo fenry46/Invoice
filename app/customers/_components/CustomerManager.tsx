@@ -25,7 +25,7 @@ export function CustomerManager({ customers }: { customers: CustomerRow[] }) {
 
   useEffect(() => {
     if (state?.ok) {
-      toast.success("Customer added");
+      toast.success("Pelanggan ditambahkan");
       formRef.current?.reset();
     } else if (state && state.ok === false) {
       toast.error(state.error);
@@ -39,20 +39,20 @@ export function CustomerManager({ customers }: { customers: CustomerRow[] }) {
           <form ref={formRef} action={action} className="grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
             <Input
               name="name"
-              placeholder="Customer name"
+              placeholder="Nama pelanggan"
               required
               maxLength={100}
               className="h-11"
             />
             <Input
               name="phone"
-              placeholder="Phone (optional)"
+              placeholder="Telepon (opsional)"
               maxLength={30}
               className="h-11"
             />
             <Button type="submit" disabled={pending} className="h-11">
               <Plus className="size-4" />
-              <span className="hidden sm:inline">Add</span>
+              <span className="hidden sm:inline">Tambah</span>
             </Button>
           </form>
         </CardContent>
@@ -63,9 +63,9 @@ export function CustomerManager({ customers }: { customers: CustomerRow[] }) {
           <div className="rounded-full bg-primary/10 p-3 text-primary">
             <Users className="size-5" aria-hidden />
           </div>
-          <p className="text-sm font-medium">No customers yet</p>
+          <p className="text-sm font-medium">Belum ada pelanggan</p>
           <p className="text-xs text-muted-foreground">
-            Add your first one above to bill them on invoices.
+            Tambahkan yang pertama di atas untuk menagih mereka di faktur.
           </p>
         </div>
       ) : (
@@ -92,7 +92,7 @@ function CustomerItem({ customer }: { customer: CustomerRow }) {
         phone: phone.trim() === "" ? undefined : phone,
       });
       if (res.ok) {
-        toast.success("Updated");
+        toast.success("Berhasil diperbarui");
         setEditing(false);
       } else {
         toast.error(res.error);
@@ -107,10 +107,10 @@ function CustomerItem({ customer }: { customer: CustomerRow }) {
   }
 
   function remove() {
-    if (!confirm(`Delete "${customer.name}"?`)) return;
+    if (!confirm(`Hapus "${customer.name}"?`)) return;
     startTransition(async () => {
       const res = await deleteCustomerAction(customer.id);
-      if (res.ok) toast.success("Deleted");
+      if (res.ok) toast.success("Berhasil dihapus");
       else toast.error(res.error);
     });
   }
@@ -131,7 +131,7 @@ function CustomerItem({ customer }: { customer: CustomerRow }) {
               onChange={(e) => setName(e.target.value)}
               className="h-10"
               autoFocus
-              placeholder="Name"
+              placeholder="Nama"
               onKeyDown={(e) => {
                 if (e.key === "Enter") save();
                 if (e.key === "Escape") cancel();
@@ -141,7 +141,7 @@ function CustomerItem({ customer }: { customer: CustomerRow }) {
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               className="h-10"
-              placeholder="Phone"
+              placeholder="Telepon"
               onKeyDown={(e) => {
                 if (e.key === "Enter") save();
                 if (e.key === "Escape") cancel();
@@ -154,7 +154,7 @@ function CustomerItem({ customer }: { customer: CustomerRow }) {
               variant="ghost"
               onClick={save}
               disabled={pending}
-              aria-label="Save"
+              aria-label="Simpan"
             >
               <Check className="size-4 text-primary" />
             </Button>
@@ -162,7 +162,7 @@ function CustomerItem({ customer }: { customer: CustomerRow }) {
               size="icon"
               variant="ghost"
               onClick={cancel}
-              aria-label="Cancel"
+              aria-label="Batal"
             >
               <X className="size-4" />
             </Button>
@@ -175,15 +175,15 @@ function CustomerItem({ customer }: { customer: CustomerRow }) {
             <div className="text-xs text-muted-foreground">
               {customer.phone ? `${customer.phone} · ` : ""}
               {customer.invoiceCount === 0
-                ? "No invoices yet"
-                : `${customer.invoiceCount} invoice${customer.invoiceCount === 1 ? "" : "s"}`}
+                ? "Belum ada faktur"
+                : `${customer.invoiceCount} faktur`}
             </div>
           </div>
           <Button
             size="icon"
             variant="ghost"
             onClick={() => setEditing(true)}
-            aria-label="Edit"
+            aria-label="Ubah"
           >
             <Pencil className="size-4" />
           </Button>
@@ -192,7 +192,7 @@ function CustomerItem({ customer }: { customer: CustomerRow }) {
             variant="ghost"
             onClick={remove}
             disabled={pending}
-            aria-label="Delete"
+            aria-label="Hapus"
           >
             <Trash2 className="size-4" />
           </Button>

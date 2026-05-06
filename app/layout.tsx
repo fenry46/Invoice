@@ -18,8 +18,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Fish Invoice Generator",
-  description: "Generate and manage sales invoices for fish merchants",
+  title: "Pembuat Faktur Ikan",
+  description: "Buat dan kelola faktur penjualan untuk pedagang ikan",
 };
 
 export default function RootLayout({
@@ -29,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="id"
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
@@ -47,40 +47,40 @@ export default function RootLayout({
                 className="flex items-center gap-2 font-semibold tracking-tight"
               >
                 <Fish className="size-5 text-primary" aria-hidden />
-                <span className="hidden sm:inline">Fish Invoice</span>
-                <span className="sm:hidden">Fish</span>
+                <span className="hidden sm:inline">Faktur Ikan</span>
+                <span className="sm:hidden">Ikan</span>
               </Link>
               <div className="flex items-center gap-0.5 text-sm">
                 <Link
                   href="/fish"
                   className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground sm:px-3"
-                  aria-label="Fish"
+                  aria-label="Ikan"
                 >
                   <Fish className="size-4 sm:hidden" aria-hidden />
-                  <span className="hidden sm:inline">Fish</span>
+                  <span className="hidden sm:inline">Ikan</span>
                 </Link>
                 <Link
                   href="/customers"
                   className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground sm:px-3"
-                  aria-label="Customers"
+                  aria-label="Pelanggan"
                 >
                   <Users className="size-4 sm:hidden" aria-hidden />
-                  <span className="hidden sm:inline">Customers</span>
+                  <span className="hidden sm:inline">Pelanggan</span>
                 </Link>
                 <Link
                   href="/invoices"
                   className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground sm:px-3"
-                  aria-label="Invoices"
+                  aria-label="Faktur"
                 >
                   <FileText className="size-4 sm:hidden" aria-hidden />
-                  <span className="hidden sm:inline">Invoices</span>
+                  <span className="hidden sm:inline">Faktur</span>
                 </Link>
                 <Link
                   href="/invoices/new"
                   className="ml-1 inline-flex items-center gap-1.5 rounded-md bg-primary px-2.5 py-2 font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 sm:px-3"
                 >
                   <Plus className="size-4" aria-hidden />
-                  <span className="hidden sm:inline">New</span>
+                  <span className="hidden sm:inline">Baru</span>
                 </Link>
                 <ThemeToggle />
               </div>

@@ -20,7 +20,7 @@ export function FishManager({ fish }: { fish: FishRow[] }) {
 
   useEffect(() => {
     if (state?.ok) {
-      toast.success("Fish added");
+      toast.success("Ikan ditambahkan");
       formRef.current?.reset();
     } else if (state && state.ok === false) {
       toast.error(state.error);
@@ -34,14 +34,14 @@ export function FishManager({ fish }: { fish: FishRow[] }) {
           <form ref={formRef} action={action} className="flex gap-2">
             <Input
               name="name"
-              placeholder="e.g. Salmon"
+              placeholder="mis. Salmon"
               required
               maxLength={60}
               className="h-11"
             />
             <Button type="submit" disabled={pending} className="h-11">
               <Plus className="size-4" />
-              <span className="hidden sm:inline">Add</span>
+              <span className="hidden sm:inline">Tambah</span>
             </Button>
           </form>
         </CardContent>
@@ -52,9 +52,9 @@ export function FishManager({ fish }: { fish: FishRow[] }) {
           <div className="rounded-full bg-primary/10 p-3 text-primary">
             <FishIcon className="size-5" aria-hidden />
           </div>
-          <p className="text-sm font-medium">No fish yet</p>
+          <p className="text-sm font-medium">Belum ada ikan</p>
           <p className="text-xs text-muted-foreground">
-            Add your first one above to start invoicing.
+            Tambahkan yang pertama di atas untuk mulai membuat faktur.
           </p>
         </div>
       ) : (
@@ -77,7 +77,7 @@ function FishItem({ fish }: { fish: FishRow }) {
     startTransition(async () => {
       const res = await renameFishAction(fish.id, name);
       if (res.ok) {
-        toast.success("Renamed");
+        toast.success("Nama berhasil diubah");
         setEditing(false);
       } else {
         toast.error(res.error);
@@ -86,10 +86,10 @@ function FishItem({ fish }: { fish: FishRow }) {
   }
 
   function remove() {
-    if (!confirm(`Delete "${fish.name}"?`)) return;
+    if (!confirm(`Hapus "${fish.name}"?`)) return;
     startTransition(async () => {
       const res = await deleteFishAction(fish.id);
-      if (res.ok) toast.success("Deleted");
+      if (res.ok) toast.success("Berhasil dihapus");
       else toast.error(res.error);
     });
   }
@@ -123,7 +123,7 @@ function FishItem({ fish }: { fish: FishRow }) {
               variant="ghost"
               onClick={save}
               disabled={pending}
-              aria-label="Save"
+              aria-label="Simpan"
             >
               <Check className="size-4 text-primary" />
             </Button>
@@ -134,7 +134,7 @@ function FishItem({ fish }: { fish: FishRow }) {
                 setName(fish.name);
                 setEditing(false);
               }}
-              aria-label="Cancel"
+              aria-label="Batal"
             >
               <X className="size-4" />
             </Button>
@@ -146,15 +146,15 @@ function FishItem({ fish }: { fish: FishRow }) {
             <div className="truncate font-medium">{fish.name}</div>
             <div className="text-xs text-muted-foreground">
               {fish.itemCount === 0
-                ? "Not used yet"
-                : `Used in ${fish.itemCount} invoice item${fish.itemCount === 1 ? "" : "s"}`}
+                ? "Belum digunakan"
+                : `Digunakan di ${fish.itemCount} barang faktur`}
             </div>
           </div>
           <Button
             size="icon"
             variant="ghost"
             onClick={() => setEditing(true)}
-            aria-label="Rename"
+            aria-label="Ubah nama"
           >
             <Pencil className="size-4" />
           </Button>
@@ -163,7 +163,7 @@ function FishItem({ fish }: { fish: FishRow }) {
             variant="ghost"
             onClick={remove}
             disabled={pending}
-            aria-label="Delete"
+            aria-label="Hapus"
           >
             <Trash2 className="size-4" />
           </Button>

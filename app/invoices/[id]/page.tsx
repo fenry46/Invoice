@@ -34,7 +34,7 @@ export default async function InvoiceDetailPage({
           className={buttonVariants({ variant: "ghost", size: "sm" })}
         >
           <ArrowLeft className="size-4" />
-          Back
+          Kembali
         </Link>
         <div className="flex items-center gap-2">
           <DeleteInvoiceButton
@@ -48,7 +48,7 @@ export default async function InvoiceDetailPage({
       <article className="print-area space-y-6 rounded-xl border bg-card p-5 shadow-sm sm:p-6">
         <header className="flex flex-wrap items-start justify-between gap-2 border-b pb-4">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Invoice</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">Faktur</h1>
             <p className="font-mono text-sm font-medium text-muted-foreground">
               {invoice.invoiceNumber}
             </p>
@@ -61,7 +61,7 @@ export default async function InvoiceDetailPage({
         {invoice.customer && (
           <section>
             <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-              Bill to
+              Tagih ke
             </h2>
             <div className="text-sm">
               <div className="font-medium">{invoice.customer.name}</div>
@@ -76,15 +76,15 @@ export default async function InvoiceDetailPage({
 
         <section>
           <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-            Items
+            Barang
           </h2>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b text-left text-muted-foreground">
-                  <th className="py-2">Fish</th>
-                  <th className="py-2 text-right">Weight (kg)</th>
-                  <th className="py-2 text-right">Price / kg</th>
+                  <th className="py-2">Ikan</th>
+                  <th className="py-2 text-right">Berat (kg)</th>
+                  <th className="py-2 text-right">Harga / kg</th>
                   <th className="py-2 text-right">Subtotal</th>
                 </tr>
               </thead>
@@ -111,7 +111,7 @@ export default async function InvoiceDetailPage({
         {invoice.deductions.length > 0 && (
           <section>
             <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-              Deductions
+              Potongan
             </h2>
             <ul className="divide-y border-y">
               {invoice.deductions.map((d) => (
@@ -131,17 +131,17 @@ export default async function InvoiceDetailPage({
 
         <section className="space-y-1 text-sm">
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Gross total</span>
+            <span className="text-muted-foreground">Total kotor</span>
             <span className="tabular-nums">{formatIDR(invoice.grossTotal)}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Deductions</span>
+            <span className="text-muted-foreground">Potongan</span>
             <span className="tabular-nums">
               - {formatIDR(invoice.totalDeductions)}
             </span>
           </div>
           <div className="flex justify-between border-t pt-2 text-base font-semibold">
-            <span>Grand total</span>
+            <span>Total akhir</span>
             <span className="tabular-nums">{formatIDR(invoice.grandTotal)}</span>
           </div>
         </section>
