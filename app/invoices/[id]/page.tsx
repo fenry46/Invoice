@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db";
 import { buttonVariants } from "@/components/ui/button";
 import { formatDate, formatIDR, formatNumber } from "@/lib/format";
 import { PrintButton } from "./_components/PrintButton";
+import { ShareInvoiceButton } from "./_components/ShareInvoiceButton";
 import { DeleteInvoiceButton } from "./_components/DeleteInvoiceButton";
 
 export const dynamic = "force-dynamic";
@@ -41,7 +42,15 @@ export default async function InvoiceDetailPage({
             id={invoice.id}
             invoiceNumber={invoice.invoiceNumber}
           />
-          <PrintButton />
+          <span className="hidden sm:inline-flex">
+            <PrintButton />
+          </span>
+          <span className="inline-flex sm:hidden">
+            <ShareInvoiceButton
+              invoiceId={invoice.id}
+              invoiceNumber={invoice.invoiceNumber}
+            />
+          </span>
         </div>
       </div>
 
