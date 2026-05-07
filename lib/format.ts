@@ -7,6 +7,7 @@ const idrFormatter = new Intl.NumberFormat("id-ID", {
 const dateFormatter = new Intl.DateTimeFormat("id-ID", {
   dateStyle: "medium",
   timeStyle: "short",
+  timeZone: "Asia/Jakarta",
 });
 
 const numberFormatter = new Intl.NumberFormat("id-ID", {
