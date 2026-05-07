@@ -69,9 +69,6 @@ export default async function InvoiceDetailPage({
 
         {invoice.customer && (
           <section>
-            <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-              Tagih ke
-            </h2>
             <div className="text-sm">
               <div className="font-medium">{invoice.customer.name}</div>
               {invoice.customer.phone && (

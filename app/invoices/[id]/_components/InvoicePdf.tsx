@@ -100,7 +100,6 @@ export function InvoicePdf({ invoice }: { invoice: InvoicePdfData }) {
 
         {invoice.customer && (
           <View style={styles.section}>
-            <Text style={styles.sectionLabel}>Tagih ke</Text>
             <Text style={styles.customerName}>{invoice.customer.name}</Text>
             {invoice.customer.phone && (
               <Text style={styles.customerPhone}>{invoice.customer.phone}</Text>
