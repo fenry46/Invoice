@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useForm, useFieldArray, useWatch, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Trash2 } from "lucide-react";
@@ -23,6 +23,74 @@ import { createInvoiceAction } from "@/app/_actions/invoices";
 type Fish = { id: string; name: string };
 type Customer = { id: string; name: string };
 
+const DRAFT_KEY = "invoice-draft:v1";
+
+function makeDefaults(fish: Fish[]): InvoiceInput {
+  return {
+    customerId: "",
+    items: [
+      {
+        fishId: fish[0]?.id ?? "",
+        weightKg: "" as unknown as number,
+        pricePerKg: "" as unknown as number,
+      },
+    ],
+    deductions: [],
+  };
+}
+
+// Reconcile a stored draft against the fish/customers that currently exist,
+// so a draft never references a deleted fish or customer.
+function reconcileDraft(
+  draft: unknown,
+  fish: Fish[],
+  customers: Customer[],
+): InvoiceInput | null {
+  if (!draft || typeof draft !== "object") return null;
+  const d = draft as Partial<InvoiceInput>;
+  if (!Array.isArray(d.items)) return null;
+  const fishIds = new Set(fish.map((f) => f.id));
+  const customerIds = new Set(customers.map((c) => c.id));
+  const fallbackFishId = fish[0]?.id ?? "";
+  const items = d.items.map((it) => ({
+    fishId: it && fishIds.has(it.fishId) ? it.fishId : fallbackFishId,
+    weightKg: it?.weightKg as number,
+    pricePerKg: it?.pricePerKg as number,
+  }));
+  if (items.length === 0) return null;
+  return {
+    customerId:
+      d.customerId && customerIds.has(d.customerId) ? d.customerId : "",
+    items,
+    deductions: Array.isArray(d.deductions)
+      ? d.deductions.map((de) => ({
+          description: de?.description ?? "",
+          amount: de?.amount as number,
+        }))
+      : [],
+  };
+}
+
+function readDraft(fish: Fish[], customers: Customer[]): InvoiceInput | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.sessionStorage.getItem(DRAFT_KEY);
+    if (!raw) return null;
+    return reconcileDraft(JSON.parse(raw), fish, customers);
+  } catch {
+    return null;
+  }
+}
+
+function clearDraft() {
+  if (typeof window === "undefined") return;
+  try {
+    window.sessionStorage.removeItem(DRAFT_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
 export function InvoiceForm({
   fish,
   customers,
@@ -32,21 +100,30 @@ export function InvoiceForm({
 }) {
   const [pending, startTransition] = useTransition();
 
+  const [restoredDraft] = useState(() => readDraft(fish, customers));
+  const [restored, setRestored] = useState(restoredDraft !== null);
+
   const form = useForm<InvoiceInput>({
     resolver: zodResolver(invoiceInputSchema),
-    defaultValues: {
-      customerId: "",
-      items: [
-        {
-          fishId: fish[0]?.id ?? "",
-          weightKg: "" as unknown as number,
-          pricePerKg: "" as unknown as number,
-        },
-      ],
-      deductions: [],
-    },
+    defaultValues: restoredDraft ?? makeDefaults(fish),
     mode: "onSubmit",
   });
+
+  const watchedAll = useWatch({ control: form.control });
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      window.sessionStorage.setItem(DRAFT_KEY, JSON.stringify(watchedAll));
+    } catch {
+      /* ignore quota / disabled storage */
+    }
+  }, [watchedAll]);
+
+  function discardDraft() {
+    clearDraft();
+    form.reset(makeDefaults(fish));
+    setRestored(false);
+  }
 
   const fishItems = Object.fromEntries(fish.map((f) => [f.id, f.name]));
   const customerItems = Object.fromEntries(
@@ -77,6 +154,9 @@ export function InvoiceForm({
   const grandTotal = grossTotal - totalDeductions;
 
   function onSubmit(data: InvoiceInput) {
+    // Drop the draft before awaiting: on success the action redirects and code
+    // here never runs, so clearing first guarantees no stale draft remains.
+    clearDraft();
     startTransition(async () => {
       const res = await createInvoiceAction(data);
       if (res && res.ok === false) {
@@ -89,6 +169,14 @@ export function InvoiceForm({
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 pb-28 sm:pb-0">
+      {restored && (
+        <div className="flex items-center justify-between gap-3 rounded-md border border-border bg-muted/40 px-3 py-2 text-sm">
+          <span className="text-muted-foreground">Draf sebelumnya dipulihkan.</span>
+          <Button type="button" variant="ghost" size="sm" onClick={discardDraft}>
+            Hapus draf
+          </Button>
+        </div>
+      )}
       <Card>
         <CardHeader>
           <CardTitle>Pelanggan</CardTitle>
