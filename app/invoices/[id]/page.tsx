@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Pencil } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { buttonVariants } from "@/components/ui/button";
 import { formatDate, formatIDR, formatNumber } from "@/lib/format";
@@ -38,6 +38,13 @@ export default async function InvoiceDetailPage({
           Kembali
         </Link>
         <div className="flex items-center gap-2">
+          <Link
+            href={`/invoices/${invoice.id}/edit`}
+            className={buttonVariants({ variant: "outline", size: "sm" })}
+          >
+            <Pencil className="size-4" />
+            <span className="hidden sm:inline">Edit</span>
+          </Link>
           <DeleteInvoiceButton
             id={invoice.id}
             invoiceNumber={invoice.invoiceNumber}

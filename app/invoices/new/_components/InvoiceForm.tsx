@@ -18,7 +18,10 @@ import {
 } from "@/components/ui/select";
 import { invoiceInputSchema, type InvoiceInput } from "@/lib/schemas";
 import { formatIDR } from "@/lib/format";
-import { createInvoiceAction } from "@/app/_actions/invoices";
+import {
+  createInvoiceAction,
+  updateInvoiceAction,
+} from "@/app/_actions/invoices";
 
 type Fish = { id: string; name: string };
 type Customer = { id: string; name: string };
@@ -71,10 +74,21 @@ function reconcileDraft(
   };
 }
 
-function readDraft(fish: Fish[], customers: Customer[]): InvoiceInput | null {
+// New invoices share one draft (DRAFT_KEY); each edit gets its own keyed by
+// invoice id so an in-progress edit survives navigating away (e.g. to add a
+// fish) without ever colliding with the new-invoice draft.
+function editDraftKey(invoiceId: string) {
+  return `invoice-edit-draft:v1:${invoiceId}`;
+}
+
+function readDraft(
+  key: string,
+  fish: Fish[],
+  customers: Customer[],
+): InvoiceInput | null {
   if (typeof window === "undefined") return null;
   try {
-    const raw = window.sessionStorage.getItem(DRAFT_KEY);
+    const raw = window.sessionStorage.getItem(key);
     if (!raw) return null;
     return reconcileDraft(JSON.parse(raw), fish, customers);
   } catch {
@@ -82,10 +96,10 @@ function readDraft(fish: Fish[], customers: Customer[]): InvoiceInput | null {
   }
 }
 
-function clearDraft() {
+function clearDraft(key: string) {
   if (typeof window === "undefined") return;
   try {
-    window.sessionStorage.removeItem(DRAFT_KEY);
+    window.sessionStorage.removeItem(key);
   } catch {
     /* ignore */
   }
@@ -94,18 +108,31 @@ function clearDraft() {
 export function InvoiceForm({
   fish,
   customers,
+  invoiceId,
+  initialValues,
 }: {
   fish: Fish[];
   customers: Customer[];
+  invoiceId?: string;
+  initialValues?: InvoiceInput;
 }) {
+  const isEdit = Boolean(invoiceId);
   const [pending, startTransition] = useTransition();
 
-  const [restoredDraft] = useState(() => readDraft(fish, customers));
+  // Create mode shares one draft; each edit gets its own per-invoice key.
+  const draftKey = invoiceId ? editDraftKey(invoiceId) : DRAFT_KEY;
+  // The data to fall back to when there is no draft (or it's discarded):
+  // the existing invoice in edit mode, blank defaults when creating.
+  const baseValues = initialValues ?? makeDefaults(fish);
+
+  const [restoredDraft] = useState(() =>
+    readDraft(draftKey, fish, customers),
+  );
   const [restored, setRestored] = useState(restoredDraft !== null);
 
   const form = useForm<InvoiceInput>({
     resolver: zodResolver(invoiceInputSchema),
-    defaultValues: restoredDraft ?? makeDefaults(fish),
+    defaultValues: restoredDraft ?? baseValues,
     mode: "onSubmit",
   });
 
@@ -113,15 +140,15 @@ export function InvoiceForm({
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
-      window.sessionStorage.setItem(DRAFT_KEY, JSON.stringify(watchedAll));
+      window.sessionStorage.setItem(draftKey, JSON.stringify(watchedAll));
     } catch {
       /* ignore quota / disabled storage */
     }
-  }, [watchedAll]);
+  }, [draftKey, watchedAll]);
 
   function discardDraft() {
-    clearDraft();
-    form.reset(makeDefaults(fish));
+    clearDraft(draftKey);
+    form.reset(baseValues);
     setRestored(false);
   }
 
@@ -153,16 +180,28 @@ export function InvoiceForm({
   );
   const grandTotal = grossTotal - totalDeductions;
 
-  function onSubmit(data: InvoiceInput) {
-    // Drop the draft before awaiting: on success the action redirects and code
-    // here never runs, so clearing first guarantees no stale draft remains.
-    clearDraft();
+  function runSave(
+    data: InvoiceInput,
+    action: (d: InvoiceInput) => Promise<{ ok: boolean; error?: string } | void>,
+  ) {
+    // Drop this form's draft before awaiting: on success the action redirects
+    // and code here never runs, so clearing first guarantees no stale draft
+    // remains. In edit mode this only clears that invoice's own draft.
+    clearDraft(draftKey);
     startTransition(async () => {
-      const res = await createInvoiceAction(data);
+      const res = await action(data);
       if (res && res.ok === false) {
-        toast.error(res.error);
+        toast.error(res.error ?? "Terjadi kesalahan");
       }
     });
+  }
+
+  function onSubmit(data: InvoiceInput) {
+    runSave(data, createInvoiceAction);
+  }
+
+  function onUpdate(data: InvoiceInput) {
+    runSave(data, (d) => updateInvoiceAction(invoiceId as string, d));
   }
 
   const itemErrors = form.formState.errors.items;
@@ -171,9 +210,13 @@ export function InvoiceForm({
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 pb-28 sm:pb-0">
       {restored && (
         <div className="flex items-center justify-between gap-3 rounded-md border border-border bg-muted/40 px-3 py-2 text-sm">
-          <span className="text-muted-foreground">Draf sebelumnya dipulihkan.</span>
+          <span className="text-muted-foreground">
+            {isEdit
+              ? "Perubahan yang belum disimpan dipulihkan."
+              : "Draf sebelumnya dipulihkan."}
+          </span>
           <Button type="button" variant="ghost" size="sm" onClick={discardDraft}>
-            Hapus draf
+            {isEdit ? "Kembalikan ke data asli" : "Hapus draf"}
           </Button>
         </div>
       )}
@@ -441,13 +484,35 @@ export function InvoiceForm({
       </Card>
 
       <div className="hidden justify-end gap-2 sm:flex">
-        <Button
-          type="submit"
-          disabled={pending}
-          className="h-11 min-w-32 shadow-sm"
-        >
-          {pending ? "Menyimpan..." : "Buat faktur"}
-        </Button>
+        {isEdit ? (
+          <>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={pending}
+              onClick={form.handleSubmit(onSubmit)}
+              className="h-11 min-w-32"
+            >
+              {pending ? "Menyimpan..." : "Simpan sebagai baru"}
+            </Button>
+            <Button
+              type="button"
+              disabled={pending}
+              onClick={form.handleSubmit(onUpdate)}
+              className="h-11 min-w-32 shadow-sm"
+            >
+              {pending ? "Menyimpan..." : "Simpan perubahan"}
+            </Button>
+          </>
+        ) : (
+          <Button
+            type="submit"
+            disabled={pending}
+            className="h-11 min-w-32 shadow-sm"
+          >
+            {pending ? "Menyimpan..." : "Buat faktur"}
+          </Button>
+        )}
       </div>
 
       <div className="fixed inset-x-0 bottom-0 z-20 border-t border-border/70 bg-background/90 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/75 sm:hidden">
@@ -460,13 +525,35 @@ export function InvoiceForm({
               {formatIDR(grandTotal)}
             </div>
           </div>
-          <Button
-            type="submit"
-            disabled={pending}
-            className="h-11 min-w-28 shadow-sm"
-          >
-            {pending ? "Menyimpan..." : "Buat"}
-          </Button>
+          {isEdit ? (
+            <div className="flex shrink-0 gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={pending}
+                onClick={form.handleSubmit(onSubmit)}
+                className="h-11 px-3"
+              >
+                {pending ? "..." : "Baru"}
+              </Button>
+              <Button
+                type="button"
+                disabled={pending}
+                onClick={form.handleSubmit(onUpdate)}
+                className="h-11 px-3 shadow-sm"
+              >
+                {pending ? "..." : "Simpan"}
+              </Button>
+            </div>
+          ) : (
+            <Button
+              type="submit"
+              disabled={pending}
+              className="h-11 min-w-28 shadow-sm"
+            >
+              {pending ? "Menyimpan..." : "Buat"}
+            </Button>
+          )}
         </div>
       </div>
     </form>

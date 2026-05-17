@@ -61,9 +61,14 @@ Indonesian; dates are formatted in the `Asia/Jakarta` timezone.
 - `/fish` — add, rename, delete fish
 - `/customers` — add, edit, delete customers (name + optional phone)
 - `/invoices` — list all invoices (most recent first)
-- `/invoices/new` — create an invoice (line items + optional deductions, optional customer)
+- `/invoices/new` — create an invoice (line items + optional deductions, optional customer); the form auto-saves to `sessionStorage` and restores on return, so navigating away (e.g. to add a fish) doesn't lose entered data
 - `/invoices/[id]` — invoice detail; on mobile a Share button hands the PDF to
-  the OS share sheet, on desktop a Print button (browser Print to PDF)
+  the OS share sheet, on desktop a Print button (browser Print to PDF); an Edit
+  button opens the edit form
+- `/invoices/[id]/edit` — edit an existing invoice (line items, deductions,
+  customer); reuses the create form pre-filled with the invoice's current
+  values, and like the new-invoice form auto-saves a per-invoice draft to
+  `sessionStorage`. The invoice number is preserved
 - `/invoices/[id]/pdf` — server-rendered PDF of the invoice (`@react-pdf/renderer`)
 
 Every route has a skeleton `loading.tsx`.
@@ -76,3 +81,5 @@ Every route has a skeleton `loading.tsx`.
 - Deleting a fish or customer referenced by any invoice is blocked at the DB
   level (`onDelete: Restrict`) and surfaced in the UI.
 - The detail page's `@media print` stylesheet hides chrome for browser Print-to-PDF.
+- The invoice form persists a draft in `sessionStorage`, restored on mount and cleared on successful submit; a "Draf dipulihkan" banner offers a discard button. New invoices use key `invoice-draft:v1`; each edit uses its own key (`invoice-edit-draft:v1:<invoiceId>`).
+- Editing an invoice replaces its items and deductions in a single transaction and recomputes the stored totals; the invoice number stays the same.

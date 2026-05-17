@@ -77,6 +77,72 @@ export async function createInvoiceAction(
   redirect(`/invoices/${id}`);
 }
 
+export type UpdateInvoiceResult =
+  | { ok: true; id: string }
+  | { ok: false; error: string };
+
+export async function updateInvoiceAction(
+  id: string,
+  input: InvoiceInput,
+): Promise<UpdateInvoiceResult> {
+  if (!id) return { ok: false, error: "ID faktur tidak ada" };
+
+  const parsed = invoiceInputSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: parsed.error.issues[0]?.message ?? "Masukan tidak valid",
+    };
+  }
+  const data = parsed.data;
+
+  const items = data.items.map((it) => ({
+    fishId: it.fishId,
+    weightKg: it.weightKg,
+    pricePerKg: it.pricePerKg,
+    subtotal: it.weightKg * it.pricePerKg,
+  }));
+  const grossTotal = items.reduce((s, it) => s + it.subtotal, 0);
+  const totalDeductions = data.deductions.reduce((s, d) => s + d.amount, 0);
+  const grandTotal = grossTotal - totalDeductions;
+
+  try {
+    await prisma.$transaction(async (tx) => {
+      await tx.invoiceItem.deleteMany({ where: { invoiceId: id } });
+      await tx.deduction.deleteMany({ where: { invoiceId: id } });
+      await tx.invoice.update({
+        where: { id },
+        data: {
+          grossTotal,
+          totalDeductions,
+          grandTotal,
+          customerId: data.customerId,
+          items: { create: items },
+          deductions: {
+            create: data.deductions.map((d) => ({
+              description: d.description,
+              amount: d.amount,
+            })),
+          },
+        },
+      });
+    });
+  } catch (e) {
+    if (
+      e instanceof Prisma.PrismaClientKnownRequestError &&
+      e.code === "P2025"
+    ) {
+      return { ok: false, error: "Faktur tidak ditemukan" };
+    }
+    return { ok: false, error: "Gagal memperbarui faktur" };
+  }
+
+  revalidatePath("/invoices");
+  revalidatePath(`/invoices/${id}`);
+  revalidatePath("/");
+  redirect(`/invoices/${id}`);
+}
+
 export type DeleteInvoiceResult =
   | { ok: true }
   | { ok: false; error: string };
