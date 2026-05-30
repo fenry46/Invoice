@@ -1,17 +1,21 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
+import { requireUserId } from "@/lib/session";
 import { buttonVariants } from "@/components/ui/button";
 import { InvoiceForm } from "./_components/InvoiceForm";
 
 export const dynamic = "force-dynamic";
 
 export default async function NewInvoicePage() {
+  const userId = await requireUserId();
   const [fish, customers] = await Promise.all([
     prisma.fish.findMany({
+      where: { userId },
       orderBy: { name: "asc" },
       select: { id: true, name: true },
     }),
     prisma.customer.findMany({
+      where: { userId },
       orderBy: { name: "asc" },
       select: { id: true, name: true },
     }),

@@ -3,41 +3,70 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  directUrl         = env("DIRECT_URL")
+  // Only consulted by `prisma migrate dev/reset` (local). Production `migrate
+  // deploy` ignores it. Local Prisma Postgres can't auto-create a shadow DB.
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  passwordHash String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  fish         Fish[]
+  customers    Customer[]
+  invoices     Invoice[]
 }
 
 model Fish {
   id        String        @id @default(cuid())
-  name      String        @unique
+  name      String
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
   items     InvoiceItem[]
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, name])
 }
 
 model Invoice {
   id              String        @id @default(cuid())
-  invoiceNumber   String        @unique
+  invoiceNumber   String
   grossTotal      Float
   totalDeductions Float
   grandTotal      Float
   createdAt       DateTime      @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   customerId String?
   customer   Customer? @relation(fields: [customerId], references: [id], onDelete: Restrict)
 
   items      InvoiceItem[]
   deductions Deduction[]
+
+  @@unique([userId, invoiceNumber])
 }
 
 model Customer {
   id        String    @id @default(cuid())
-  name      String    @unique
+  name      String
   phone     String?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   invoices  Invoice[]
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, name])
 }
 
 model InvoiceItem {

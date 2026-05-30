@@ -1,10 +1,13 @@
 import { prisma } from "@/lib/db";
+import { requireUserId } from "@/lib/session";
 import { CustomerManager } from "./_components/CustomerManager";
 
 export const dynamic = "force-dynamic";
 
 export default async function CustomersPage() {
+  const userId = await requireUserId();
   const customers = await prisma.customer.findMany({
+    where: { userId },
     orderBy: { name: "asc" },
     include: { _count: { select: { invoices: true } } },
   });

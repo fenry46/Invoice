@@ -1,5 +1,19 @@
 import { z } from "zod";
 
+export const credentialsSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .pipe(z.email("Email tidak valid")),
+  password: z
+    .string()
+    .min(8, "Kata sandi minimal 8 karakter")
+    .max(200, "Kata sandi terlalu panjang"),
+});
+
+export type Credentials = z.infer<typeof credentialsSchema>;
+
 export const fishNameSchema = z
   .string()
   .trim()

@@ -14,11 +14,12 @@ export function dayBounds(d: Date = new Date()): { start: Date; end: Date; ymd: 
 
 export async function generateInvoiceNumber(
   tx: Prisma.TransactionClient,
+  userId: string,
   now: Date = new Date(),
 ): Promise<string> {
   const { start, end, ymd } = dayBounds(now);
   const count = await tx.invoice.count({
-    where: { createdAt: { gte: start, lt: end } },
+    where: { userId, createdAt: { gte: start, lt: end } },
   });
   const seq = String(count + 1).padStart(4, "0");
   return `INV-${ymd}-${seq}`;

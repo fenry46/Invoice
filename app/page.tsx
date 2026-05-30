@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ChevronRight, FileText, Fish as FishIcon, Plus } from "lucide-react";
 import { prisma } from "@/lib/db";
+import { requireUserId } from "@/lib/session";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatDate, formatIDR } from "@/lib/format";
@@ -8,18 +9,20 @@ import { formatDate, formatIDR } from "@/lib/format";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
+  const userId = await requireUserId();
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
   const [recent, fishCount, invoiceCount, monthAgg] = await Promise.all([
     prisma.invoice.findMany({
+      where: { userId },
       orderBy: { createdAt: "desc" },
       take: 5,
     }),
-    prisma.fish.count(),
-    prisma.invoice.count(),
+    prisma.fish.count({ where: { userId } }),
+    prisma.invoice.count({ where: { userId } }),
     prisma.invoice.aggregate({
-      where: { createdAt: { gte: monthStart } },
+      where: { userId, createdAt: { gte: monthStart } },
       _sum: { grandTotal: true },
       _count: { _all: true },
     }),

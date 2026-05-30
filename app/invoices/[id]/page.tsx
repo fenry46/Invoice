@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Pencil } from "lucide-react";
 import { prisma } from "@/lib/db";
+import { requireUserId } from "@/lib/session";
 import { buttonVariants } from "@/components/ui/button";
 import { formatDate, formatIDR, formatNumber } from "@/lib/format";
 import { PrintButton } from "./_components/PrintButton";
@@ -16,8 +17,9 @@ export default async function InvoiceDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const invoice = await prisma.invoice.findUnique({
-    where: { id },
+  const userId = await requireUserId();
+  const invoice = await prisma.invoice.findFirst({
+    where: { id, userId },
     include: {
       items: { include: { fish: true } },
       deductions: true,

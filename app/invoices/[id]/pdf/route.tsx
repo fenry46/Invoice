@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { prisma } from "@/lib/db";
+import { requireUserId } from "@/lib/session";
 import { InvoicePdf } from "../_components/InvoicePdf";
 
 export const runtime = "nodejs";
@@ -11,8 +12,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  const invoice = await prisma.invoice.findUnique({
-    where: { id },
+  const userId = await requireUserId();
+  const invoice = await prisma.invoice.findFirst({
+    where: { id, userId },
     include: {
       items: { include: { fish: true } },
       deductions: true,

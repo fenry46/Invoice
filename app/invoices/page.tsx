@@ -1,13 +1,16 @@
 import Link from "next/link";
 import { ChevronRight, FileText, Plus } from "lucide-react";
 import { prisma } from "@/lib/db";
+import { requireUserId } from "@/lib/session";
 import { buttonVariants } from "@/components/ui/button";
 import { formatDate, formatIDR } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
 export default async function InvoicesPage() {
+  const userId = await requireUserId();
   const invoices = await prisma.invoice.findMany({
+    where: { userId },
     orderBy: { createdAt: "desc" },
     take: 100,
     include: {

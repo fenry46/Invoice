@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
+import { requireUserId } from "@/lib/session";
 import type { InvoiceInput } from "@/lib/schemas";
 import { InvoiceForm } from "../../new/_components/InvoiceForm";
 
@@ -11,10 +12,11 @@ export default async function EditInvoicePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const userId = await requireUserId();
 
   const [invoice, fish, customers] = await Promise.all([
-    prisma.invoice.findUnique({
-      where: { id },
+    prisma.invoice.findFirst({
+      where: { id, userId },
       include: {
         items: { include: { fish: true } },
         deductions: true,
@@ -22,10 +24,12 @@ export default async function EditInvoicePage({
       },
     }),
     prisma.fish.findMany({
+      where: { userId },
       orderBy: { name: "asc" },
       select: { id: true, name: true },
     }),
     prisma.customer.findMany({
+      where: { userId },
       orderBy: { name: "asc" },
       select: { id: true, name: true },
     }),

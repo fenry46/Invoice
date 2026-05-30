@@ -3,6 +3,7 @@
 import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
+import { requireUserId } from "@/lib/session";
 import { customerInputSchema, customerNameSchema } from "@/lib/schemas";
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
@@ -18,6 +19,7 @@ export async function createCustomerAction(
   _prev: ActionResult | null,
   formData: FormData,
 ): Promise<ActionResult> {
+  const userId = await requireUserId();
   const parsed = customerInputSchema.safeParse({
     name: formData.get("name"),
     phone: formData.get("phone") ?? undefined,
@@ -26,7 +28,7 @@ export async function createCustomerAction(
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Masukan tidak valid" };
   }
   try {
-    await prisma.customer.create({ data: parsed.data });
+    await prisma.customer.create({ data: { ...parsed.data, userId } });
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
       return { ok: false, error: "Pelanggan dengan nama itu sudah ada" };
@@ -41,15 +43,17 @@ export async function updateCustomerAction(
   id: string,
   input: { name: string; phone?: string },
 ): Promise<ActionResult> {
+  const userId = await requireUserId();
   const parsed = customerInputSchema.safeParse(input);
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Masukan tidak valid" };
   }
   try {
-    await prisma.customer.update({
-      where: { id },
+    const { count } = await prisma.customer.updateMany({
+      where: { id, userId },
       data: { name: parsed.data.name, phone: parsed.data.phone ?? null },
     });
+    if (count === 0) return { ok: false, error: "Pelanggan tidak ditemukan" };
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
       return { ok: false, error: "Pelanggan dengan nama itu sudah ada" };
@@ -64,12 +68,17 @@ export async function renameCustomerAction(
   id: string,
   name: string,
 ): Promise<ActionResult> {
+  const userId = await requireUserId();
   const parsed = customerNameSchema.safeParse(name);
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Nama tidak valid" };
   }
   try {
-    await prisma.customer.update({ where: { id }, data: { name: parsed.data } });
+    const { count } = await prisma.customer.updateMany({
+      where: { id, userId },
+      data: { name: parsed.data },
+    });
+    if (count === 0) return { ok: false, error: "Pelanggan tidak ditemukan" };
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
       return { ok: false, error: "Pelanggan dengan nama itu sudah ada" };
@@ -81,8 +90,10 @@ export async function renameCustomerAction(
 }
 
 export async function deleteCustomerAction(id: string): Promise<ActionResult> {
+  const userId = await requireUserId();
   try {
-    await prisma.customer.delete({ where: { id } });
+    const { count } = await prisma.customer.deleteMany({ where: { id, userId } });
+    if (count === 0) return { ok: false, error: "Pelanggan tidak ditemukan" };
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2003") {
       return {

@@ -1,10 +1,13 @@
 import { prisma } from "@/lib/db";
+import { requireUserId } from "@/lib/session";
 import { FishManager } from "./_components/FishManager";
 
 export const dynamic = "force-dynamic";
 
 export default async function FishPage() {
+  const userId = await requireUserId();
   const fish = await prisma.fish.findMany({
+    where: { userId },
     orderBy: { name: "asc" },
     include: { _count: { select: { items: true } } },
   });
