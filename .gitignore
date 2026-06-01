@@ -37,6 +37,13 @@ yarn-error.log*
 CLAUDE.md
 AGENTS.md
 
+# MCP config (local, may reference live project)
+.mcp.json
+
+# operational artifacts — NEVER commit (live prod data dumps + scripts holding secrets)
+/backups/
+/scripts/
+
 # vercel
 .vercel
 
