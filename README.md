@@ -92,6 +92,35 @@ Indonesian; dates are formatted in the `Asia/Jakarta` timezone.
 `npm run build` runs `prisma migrate deploy` (against `.env`) before
 `next build`.
 
+## Deployment
+
+Deployed on **Vercel** (live at <https://fish-invoice.vercel.app>), building from
+the `master` branch. The production database is **Supabase** Postgres.
+
+Set these environment variables in the Vercel project (Production + Preview):
+
+| Variable | Purpose |
+| --- | --- |
+| `DATABASE_URL` | Supabase **pooler** connection (port 6543) — app queries |
+| `DIRECT_URL` | Supabase **direct** connection (port 5432) — migrations/DDL |
+| `AUTH_SECRET` | **Required.** Auth.js session secret (see below) |
+
+> ⚠️ **`AUTH_SECRET` is mandatory in production.** Without it, the optimistic
+> auth gate (`proxy.ts`) and the per-request session check (`requireUserId()`)
+> disagree about whether you're signed in, which sends the app into an infinite
+> `/` ⇄ `/login` redirect loop. Generate one with
+> `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`.
+> After adding or changing any Vercel env var, **redeploy** for it to apply.
+
+The build step runs `prisma migrate deploy` against the production DB. Each push
+to `master` triggers a new Vercel deployment.
+
+**Region.** Functions are pinned to **Singapore (`sin1`)** via `vercel.json`
+(`regions: ["sin1"]`) to sit close to the users (Indonesia) and the database.
+The Supabase DB currently lives in Sydney (`ap-southeast-2`); co-locating it in
+Singapore would remove the remaining cross-region query latency (a larger,
+later task).
+
 ## Routes
 
 All routes except `/login` and `/register` require an authenticated session
