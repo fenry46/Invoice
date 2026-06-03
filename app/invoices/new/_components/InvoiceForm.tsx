@@ -9,13 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Combobox } from "@/components/ui/combobox";
 import { invoiceInputSchema, type InvoiceInput } from "@/lib/schemas";
 import { formatIDR } from "@/lib/format";
 import {
@@ -152,11 +146,6 @@ export function InvoiceForm({
     setRestored(false);
   }
 
-  const fishItems = Object.fromEntries(fish.map((f) => [f.id, f.name]));
-  const customerItems = Object.fromEntries(
-    customers.map((c) => [c.id, c.name]),
-  );
-
   const items = useFieldArray({ control: form.control, name: "items" });
   const deductions = useFieldArray({
     control: form.control,
@@ -229,22 +218,14 @@ export function InvoiceForm({
             control={form.control}
             name="customerId"
             render={({ field: f }) => (
-              <Select
+              <Combobox
+                options={customers}
                 value={f.value}
                 onValueChange={f.onChange}
-                items={customerItems}
-              >
-                <SelectTrigger className="h-11 w-full">
-                  <SelectValue placeholder="Pilih pelanggan" />
-                </SelectTrigger>
-                <SelectContent>
-                  {customers.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>
-                      {c.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                placeholder="Cari pelanggan…"
+                emptyText="Pelanggan tidak ditemukan"
+                ariaInvalid={Boolean(form.formState.errors.customerId)}
+              />
             )}
           />
           {form.formState.errors.customerId && (
@@ -291,22 +272,14 @@ export function InvoiceForm({
                     control={form.control}
                     name={`items.${idx}.fishId`}
                     render={({ field: f }) => (
-                      <Select
+                      <Combobox
+                        options={fish}
                         value={f.value}
                         onValueChange={f.onChange}
-                        items={fishItems}
-                      >
-                        <SelectTrigger className="h-11 w-full">
-                          <SelectValue placeholder="Pilih ikan" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {fish.map((fi) => (
-                            <SelectItem key={fi.id} value={fi.id}>
-                              {fi.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        placeholder="Cari ikan…"
+                        emptyText="Ikan tidak ditemukan"
+                        ariaInvalid={Boolean(err?.fishId)}
+                      />
                     )}
                   />
                   {err?.fishId && (
