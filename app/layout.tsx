@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
-import { Fish, FileText, LogOut, Plus, Users } from "lucide-react";
+import { Fish, LogOut } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { BottomNav, DesktopNavLinks } from "@/app/_components/SiteNav";
+import { cn } from "@/lib/utils";
 import { auth } from "@/auth";
 import { logoutAction } from "@/app/_actions/auth";
 import "./globals.css";
@@ -56,41 +58,7 @@ export default async function RootLayout({
                 <span className="sm:hidden">Ikan</span>
               </Link>
               <div className="flex items-center gap-0.5 text-sm">
-                {session?.user && (
-                  <>
-                    <Link
-                      href="/fish"
-                      className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground sm:px-3"
-                      aria-label="Ikan"
-                    >
-                      <Fish className="size-4 sm:hidden" aria-hidden />
-                      <span className="hidden sm:inline">Ikan</span>
-                    </Link>
-                    <Link
-                      href="/customers"
-                      className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground sm:px-3"
-                      aria-label="Pelanggan"
-                    >
-                      <Users className="size-4 sm:hidden" aria-hidden />
-                      <span className="hidden sm:inline">Pelanggan</span>
-                    </Link>
-                    <Link
-                      href="/invoices"
-                      className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground sm:px-3"
-                      aria-label="Faktur"
-                    >
-                      <FileText className="size-4 sm:hidden" aria-hidden />
-                      <span className="hidden sm:inline">Faktur</span>
-                    </Link>
-                    <Link
-                      href="/invoices/new"
-                      className="ml-1 inline-flex items-center gap-1.5 rounded-md bg-primary px-2.5 py-2 font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 sm:px-3"
-                    >
-                      <Plus className="size-4" aria-hidden />
-                      <span className="hidden sm:inline">Baru</span>
-                    </Link>
-                  </>
-                )}
+                {session?.user && <DesktopNavLinks />}
                 <ThemeToggle />
                 {session?.user && (
                   <form action={logoutAction} className="ml-1 flex items-center">
@@ -114,9 +82,17 @@ export default async function RootLayout({
               </div>
             </nav>
           </header>
-          <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-6">
+          <main
+            className={cn(
+              "mx-auto w-full max-w-3xl flex-1 px-4 pt-6",
+              session?.user
+                ? "pb-[calc(5rem+env(safe-area-inset-bottom))] sm:pb-6"
+                : "pb-6",
+            )}
+          >
             {children}
           </main>
+          {session?.user && <BottomNav />}
           <Toaster richColors position="top-center" />
         </ThemeProvider>
       </body>
