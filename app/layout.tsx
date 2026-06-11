@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import { Fish, LogOut } from "lucide-react";
@@ -25,6 +25,13 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Pembuat Faktur Ikan",
   description: "Buat dan kelola faktur penjualan untuk pedagang ikan",
+};
+
+// viewport-fit=cover is required for env(safe-area-inset-*) to report
+// non-zero values, so the BottomNav and the invoice save bar clear the
+// device home indicator / navigation bar on phones.
+export const viewport: Viewport = {
+  viewportFit: "cover",
 };
 
 export default async function RootLayout({
