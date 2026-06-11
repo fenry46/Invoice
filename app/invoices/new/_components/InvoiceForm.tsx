@@ -488,7 +488,10 @@ export function InvoiceForm({
         )}
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-border/70 bg-background/90 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/75 sm:hidden">
+      {/* Sits above the mobile BottomNav (min-h-13 = 3.25rem tall + its own
+          safe-area pad) so the save button is never covered by the tab bar.
+          On sm:+ there is no BottomNav and this bar is hidden entirely. */}
+      <div className="fixed inset-x-0 bottom-[calc(3.25rem+env(safe-area-inset-bottom))] z-20 border-t border-border/70 bg-background/90 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/75 sm:hidden">
         <div className="mx-auto flex w-full max-w-3xl items-center gap-3">
           <div className="min-w-0 flex-1">
             <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
